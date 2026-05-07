@@ -1,0 +1,5 @@
+fragments_db/
+PocketFortune.xcodeproj/xcuserdata/
+android/.idea/
+.DS_Store
+*.log

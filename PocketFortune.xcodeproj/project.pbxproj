@@ -6,8 +6,13 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		8FF2CD582F83ECED000DF40A /* StoreKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8FF2CD572F83ECED000DF40A /* StoreKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		8F4BD54C2F7771BA003F88B4 /* PocketFortune.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PocketFortune.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		8FF2CD572F83ECED000DF40A /* StoreKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = StoreKit.framework; path = System/Library/Frameworks/StoreKit.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -23,6 +28,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8FF2CD582F83ECED000DF40A /* StoreKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -33,6 +39,7 @@
 			isa = PBXGroup;
 			children = (
 				8F4BD54E2F7771BA003F88B4 /* PocketFortune */,
+				8FF2CD562F83ECED000DF40A /* Frameworks */,
 				8F4BD54D2F7771BA003F88B4 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -43,6 +50,14 @@
 				8F4BD54C2F7771BA003F88B4 /* PocketFortune.app */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		8FF2CD562F83ECED000DF40A /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				8FF2CD572F83ECED000DF40A /* StoreKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -245,11 +260,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = Q82QB32AZ8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Fragments;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "現在の気配（天気や時間）を読み取り、あなたにぴったりな言葉を見つけるために使用します。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -264,8 +282,11 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.lagado.PocketFortune;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = jp.lagado.pocketfortune;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = jp.lagado.pocketfortune;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=xros*]" = jp.lagado.pocketfortune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -287,11 +308,14 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
-				CURRENT_PROJECT_VERSION = 1;
+				CURRENT_PROJECT_VERSION = 3;
+				DEVELOPMENT_TEAM = Q82QB32AZ8;
 				ENABLE_APP_SANDBOX = YES;
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Fragments;
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "現在の気配（天気や時間）を読み取り、あなたにぴったりな言葉を見つけるために使用します。";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -306,8 +330,11 @@
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.4;
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.0.2;
 				PRODUCT_BUNDLE_IDENTIFIER = jp.lagado.PocketFortune;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = jp.lagado.pocketfortune;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = jp.lagado.pocketfortune;
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=xros*]" = jp.lagado.pocketfortune;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;

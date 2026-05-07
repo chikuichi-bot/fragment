@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>LiteraryFragments</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,300;0,400;0,600&family=Open+Sans:ital,wght@0,400;0,600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="style.css">
+    
+    <style>
+        /* 矢印の呼吸アニメーション */
+        @keyframes float-left {
+            0% { transform: translateX(0px); opacity: 0.3; }
+            50% { transform: translateX(-8px); opacity: 1; }
+            100% { transform: translateX(0px); opacity: 0.3; }
+        }
+        @keyframes float-right {
+            0% { transform: translateX(0px); opacity: 0.3; }
+            50% { transform: translateX(8px); opacity: 1; }
+            100% { transform: translateX(0px); opacity: 0.3; }
+        }
+
+        /* 🌟 水面の波紋アニメーション */
+        @keyframes ripple {
+            0% { transform: scale(0.5); opacity: 0; }
+            30% { opacity: 0.4; }
+            100% { transform: scale(2.5); opacity: 0; }
+        }
+
+        .ripple-circle {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            border: 1px solid #ff9500;
+            border-radius: 50%;
+            opacity: 0;
+            pointer-events: none;
+            animation: ripple 4s infinite cubic-bezier(0.25, 0.46, 0.45, 0.94);
+        }
+
+        /* 2つ目の波紋（時間差で出す） */
+        .ripple-delay {
+            animation-delay: 2s;
+        }
+    </style>
+</head>
+<body id="main-body">
+
+    <div class="quote-container" id="quote-container">
+        
+        <div id="swipe-guide" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); display: flex; justify-content: center; align-items: center; width: 100%; height: 100%; pointer-events: none; transition: opacity 0.8s ease; z-index: 10;">
+            
+            <div class="ripple-circle"></div>
+            <div class="ripple-circle ripple-delay"></div>
+
+            <div style="display: flex; justify-content: center; align-items: center; gap: 120px; color: #ff9500;">
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1" style="animation: float-left 2.5s infinite ease-in-out;">
+                    <path d="M19 12H5m0 0l6-6m-6 6l6 6"></path>
+                </svg>
+                
+                <svg viewBox="0 0 24 24" width="36" height="36" fill="none" stroke="currentColor" stroke-width="1" style="animation: float-right 2.5s infinite ease-in-out;">
+                    <path d="M5 12h14m0 0l-6-6m6 6l-6 6"></path>
+                </svg>
+            </div>
+            
+        </div>
+
+        <div class="quote-content">
+            <p class="extracted-quote" id="quote-text"></p>
+            <div class="source-area" id="source-area">
+                <p id="source-title"></p>
+                <p id="source-author"></p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-bar" id="bottom-bar">
+        <button class="nav-btn" id="btn-settings" aria-label="設定を開く">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+        </button>
+        <button class="nav-btn" id="btn-bag" aria-label="お気に入りを開く">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="8" width="16" height="12" rx="2" ry="2"></rect><path d="M8 8V6a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="8" y1="8" x2="8" y2="20"></line><line x1="16" y1="8" x2="16" y2="20"></line></svg>
+        </button>
+        <button class="nav-btn" id="btn-help" aria-label="AI解説を開く">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </button>
+        <button class="nav-btn" id="btn-star" aria-label="名言をストックする">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+        </button>
+        <button class="nav-btn" id="btn-book" aria-label="音声を読み上げる">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+        </button>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
+

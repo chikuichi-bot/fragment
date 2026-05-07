@@ -1,0 +1,187 @@
+/* 🌟 青いカーソルと黒いメニューを【基本的に禁止】する */
+* {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* 🌟 翻訳・テキスト選択が必要な文章部分だけ選択可能に上書きする */
+.quote-content, #quote-text, .extracted-quote, .source-area, .word {
+    -webkit-user-select: text !important;
+    user-select: text !important;
+    pointer-events: auto !important;
+}
+
+/* =========================================
+   🎨 カラーテーマ設定（CSS変数）
+   ========================================= */
+:root {
+    --bg-color: transparent;
+    --text-main: #111111; /* 🌟 ライトモード時のメイン文字色（黒） */
+    --text-sub: #555555;  /* 🌟 ライトモード時のサブ文字色（グレー） */
+    --icon-color: #222222;
+    --fade-time: 1.0s;
+    --glass-bg: rgba(250, 245, 235, 0.85);
+}
+
+/* 🌙 ナイトモードの明示的指定（data-theme="dark"が付いた時） */
+html[data-theme="dark"] {
+    --text-main: #F2F2F7;
+    --text-sub: #C7C7CC;
+    --icon-color: #F2F2F7;
+    --glass-bg: rgba(28, 28, 30, 0.85);
+}
+
+/* 🌓 「端末に合わせる」かつ「iPhoneがダークモード」の時の自動対応 */
+@media (prefers-color-scheme: dark) {
+    :root:not([data-theme]) {
+        --text-main: #F2F2F7;
+        --text-sub: #C7C7CC;
+        --icon-color: #F2F2F7;
+        --glass-bg: rgba(28, 28, 30, 0.85);
+    }
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: var(--bg-color);
+    color: var(--text-main);
+    font-family: 'Open Sans', -apple-system, sans-serif;
+    transition: color 0.3s ease;
+    
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+#top-bar {
+    position: absolute;
+    top: max(15px, env(safe-area-inset-top));
+    right: 20px;
+    font-size: 14px;
+    color: var(--text-sub);
+    letter-spacing: 1px;
+    z-index: 100;
+}
+
+.quote-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    z-index: 10;
+}
+
+.quote-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    padding-top: max(env(safe-area-inset-top), 60px);
+    padding-bottom: calc(env(safe-area-inset-bottom) + 120px);
+    box-sizing: border-box;
+}
+
+.quote-container::-webkit-scrollbar {
+    display: none;
+}
+
+.extracted-quote {
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 32px;
+    font-weight: 300;
+    font-style: italic;
+    line-height: 1.6;
+    letter-spacing: 0.5px;
+    margin: 0 0 40px 0;
+    color: var(--text-main);
+    opacity: 0;
+    /* 🌟 ここにあった translateY（上下の動き）を削除しました */
+}
+
+.extracted-quote.fade-in {
+    opacity: 1;
+    /* 🌟 translateYを削除し、透明度の変化だけにしました */
+    transition: opacity var(--fade-time) ease-out;
+}
+
+.word { display: inline; cursor: pointer; }
+
+.source-area {
+    text-align: center;
+    max-width: 320px;
+    width: 100%;
+    margin-top: 40px;
+    opacity: 0;
+    cursor: pointer;
+    /* 🌟 ここにあった translateY（上下の動き）を削除しました */
+}
+
+.source-area.fade-in {
+    opacity: 1;
+    /* 🌟 translateYを削除し、透明度の変化だけにしました */
+    transition: opacity var(--fade-time) ease-out 0.4s;
+}
+
+.source-area:active {
+    opacity: 0.3 !important;
+}
+
+#source-title, #source-author {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 18px;
+    font-weight: 400;
+    color: var(--text-sub);
+    margin: 6px 0;
+    transition: color 0.3s ease;
+}
+
+.bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: var(--glass-bg);
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-top: 0.5px solid rgba(128, 128, 128, 0.2);
+    padding-top: 15px;
+    padding-bottom: max(20px, env(safe-area-inset-bottom));
+    z-index: 100;
+    transition: background-color 0.3s ease;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    color: var(--icon-color);
+    width: 44px;
+    height: 44px;
+    padding: 8px;
+    cursor: pointer;
+    transition: transform 0.1s, opacity 0.2s, color 0.3s ease;
+}
+
+.nav-btn:active {
+    transform: scale(0.85);
+    opacity: 0.4;
+}
+
+.nav-btn svg { width: 100%; height: 100%; stroke-width: 1.5; }
+
+.highlight-word {
+    color: #ff9500 !important;
+    font-weight: 600;
+}
