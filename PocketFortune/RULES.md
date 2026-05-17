@@ -27,4 +27,4 @@ Swift側でAPIから取得した名言データやテーマの変更は、`evalu
 Swift側で各種データを一元管理している。
 * **名言の取得:** `QuoteDatabase` クラスが `https://lagado.jp/fragments/api.php` と通信し、通常モード（ランダム）、検索モード、気配（Atmosphere）モードのデータを管理する。
 * **お気に入り・履歴:** `QuoteStorage` クラスが `UserDefaults` を用いて端末内に保存する。
-* **多言語対応とAI解説:** `LanguageManager` や `ExplanationView` では、Gemini API (`gemini-3.1-flash-lite-preview`) を直接呼び出して翻訳やAI解説を生成している。
+* **多言語対応とAI解説:** `LanguageManager` や `ExplanationView` では、サーバー経由で Gemini API (`gemini-3.1-flash-lite`) を呼び出して翻訳やAI解説を生成している。
