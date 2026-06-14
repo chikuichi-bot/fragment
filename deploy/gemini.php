@@ -2,11 +2,26 @@
 header("Access-Control-Allow-Origin: *");
 header("Content-Type: application/json; charset=UTF-8");
 
-// 🌟 ここが「金庫」です！ここにGeminiのAPIキーを書きます。
-// iPhoneアプリからはこのファイルの中身は絶対に見えません。
-$apiKey = getenv('GEMINI_API_KEY') ?: ''; // ⚠️本物のキーに書き換えてください
+$secretsPath = __DIR__ . '/gemini_secrets.php';
+if (is_file($secretsPath)) {
+    require_once $secretsPath;
+}
 
-// iPhoneアプリから送られてきたデータ（プロンプト等）を受け取る
+$apiKey = '';
+if (defined('FRAGMENTS_GEMINI_API_KEY')) {
+    $apiKey = trim((string) FRAGMENTS_GEMINI_API_KEY);
+}
+if ($apiKey === '') {
+    $env = getenv('GEMINI_API_KEY');
+    if (is_string($env) && trim($env) !== '') {
+        $apiKey = trim($env);
+    }
+}
+if ($apiKey === '') {
+    echo json_encode(['error' => 'Gemini APIキーが未設定です。gemini_secrets.php を配置してください。']);
+    exit;
+}
+
 $json = file_get_contents('php://input');
 
 if (empty($json)) {
@@ -14,23 +29,22 @@ if (empty($json)) {
     exit;
 }
 
-// Gemini APIにリクエストを送る
-$url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent?key=' . $apiKey;
+$url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.1-flash-lite:generateContent';
 
 $ch = curl_init($url);
 curl_setopt($ch, CURLOPT_POST, true);
 curl_setopt($ch, CURLOPT_POSTFIELDS, $json);
-curl_setopt($ch, CURLOPT_HTTPHEADER, array('Content-Type: application/json'));
+curl_setopt($ch, CURLOPT_HTTPHEADER, [
+    'Content-Type: application/json',
+    'x-goog-api-key: ' . $apiKey,
+]);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
 
-// Geminiからの返事を受け取る
 $response = curl_exec($ch);
 
-if(curl_errno($ch)){
+if (curl_errno($ch)) {
     echo json_encode(['error' => curl_error($ch)]);
 } else {
-    // iPhoneにそのまま返事を送り返す
     echo $response;
 }
 curl_close($ch);
-?>
