@@ -164,6 +164,20 @@ object TicketManager {
         return context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE).getInt("remainingTickets", 0)
     }
 
+    /** 有料チケット加算（Play Billing 台帳から一度だけ呼ぶ）。無料日次枠は触らない。 */
+    fun addPaidTickets(context: Context, amount: Int): Boolean {
+        if (amount <= 0) return false
+        return try {
+            val prefs = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
+            val current = prefs.getInt("remainingTickets", 0)
+            prefs.edit { putInt("remainingTickets", current + amount) }
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        }
+    }
+
     fun consumeTicket(context: Context): Boolean {
         try {
             checkDailyReset(context)

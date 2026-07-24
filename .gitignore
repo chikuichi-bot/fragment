@@ -1,5 +1,9 @@
 fragments_db/
 PocketFortune.xcodeproj/xcuserdata/
+PocketFortune.xcodeproj/project.xcworkspace/xcuserdata/
 android/.idea/
+android/.kotlin/
 .DS_Store
 *.log
+deploy/gemini_secrets.php
+**/gemini_secrets.php

@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Literary Fragments（FragmentsApp）— 同等品質をゼロから開発した場合のコード見積ホームページ。" />
+  <title>Fragments · 開発費用見積</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600&family=Outfit:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #0e1116;
+      --ink: #e8eaed;
+      --muted: #9aa3ad;
+      --panel: #161b22;
+      --line: rgba(232, 234, 237, 0.12);
+      --accent: #c9a227;
+      --accent-soft: rgba(201, 162, 39, 0.15);
+      --max: 1080px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: "Outfit", "Hiragino Sans", sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      line-height: 1.7;
+    }
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .hero {
+      position: relative;
+      min-height: 100svh;
+      display: grid;
+      align-items: end;
+      overflow: hidden;
+      background:
+        radial-gradient(ellipse 70% 50% at 80% 10%, rgba(201, 162, 39, 0.18), transparent 55%),
+        radial-gradient(ellipse 50% 40% at 10% 90%, rgba(90, 120, 160, 0.12), transparent 50%),
+        linear-gradient(165deg, #141820 0%, #0a0c10 60%, #06070a 100%);
+    }
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 8% 8% auto auto;
+      width: min(48vw, 420px);
+      aspect-ratio: 3/4;
+      border: 1px solid rgba(232, 234, 237, 0.08);
+      background:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(232, 234, 237, 0.04) 28px,
+          rgba(232, 234, 237, 0.04) 29px
+        );
+      opacity: 0;
+      animation: fadeIn 1.2s 0.25s ease forwards;
+      pointer-events: none;
+    }
+    .hero-inner {
+      position: relative;
+      z-index: 1;
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+      padding: 48px 0 56px;
+      opacity: 0;
+      transform: translateY(16px);
+      animation: rise 0.85s 0.1s ease forwards;
+    }
+    .brand-mark {
+      margin: 0 0 14px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(40px, 8vw, 68px);
+      font-weight: 600;
+      letter-spacing: 0.04em;
+      line-height: 1.1;
+    }
+    .hero h1 {
+      margin: 0 0 14px;
+      font-size: clamp(20px, 3.6vw, 30px);
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      max-width: 18em;
+    }
+    .hero-lead {
+      margin: 0 0 28px;
+      color: var(--muted);
+      font-size: clamp(14px, 2vw, 16px);
+      max-width: 36em;
+    }
+    .hero-ctas { display: flex; flex-wrap: wrap; gap: 12px; margin-bottom: 36px; }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      padding: 12px 20px;
+      border-radius: 2px;
+      font-size: 14px;
+      font-weight: 500;
+      letter-spacing: 0.04em;
+      border: 1px solid transparent;
+      text-decoration: none !important;
+      transition: transform 0.2s ease, background 0.2s;
+    }
+    .btn:hover { transform: translateY(-1px); }
+    .btn-primary { background: var(--accent); color: #12100a; }
+    .btn-ghost { color: var(--ink); border-color: rgba(232, 234, 237, 0.28); }
+
+    .hero-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px 28px;
+      padding-top: 22px;
+      border-top: 1px solid var(--line);
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .hero-meta strong {
+      display: block;
+      margin-top: 2px;
+      color: var(--ink);
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    .nav-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      backdrop-filter: blur(14px);
+      background: rgba(14, 17, 22, 0.88);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-sticky-inner {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
+      padding: 10px 0;
+    }
+    .nav-sticky a {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-size: 13px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .nav-sticky a:hover {
+      color: var(--accent);
+      background: var(--accent-soft);
+      text-decoration: none;
+    }
+
+    .wrap {
+      width: min(calc(100% - 40px), var(--max));
+      margin: 0 auto;
+      padding: 56px 0 80px;
+    }
+    section { margin-bottom: 64px; scroll-margin-top: 64px; }
+    .kicker {
+      margin: 0 0 8px;
+      font-size: 11px;
+      letter-spacing: 0.2em;
+      color: var(--accent);
+      text-transform: uppercase;
+    }
+    .section-title {
+      margin: 0 0 14px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(26px, 4vw, 36px);
+      font-weight: 600;
+      letter-spacing: 0.02em;
+    }
+    .lead { margin: 0 0 22px; color: var(--muted); max-width: 44em; }
+
+    .price-band {
+      display: grid;
+      grid-template-columns: 1.25fr 1fr;
+      gap: 16px;
+    }
+    @media (max-width: 800px) { .price-band { grid-template-columns: 1fr; } }
+    .price-main {
+      padding: 28px;
+      background: linear-gradient(145deg, #1c2330, #12161e);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      position: relative;
+      overflow: hidden;
+    }
+    .price-main::after {
+      content: "";
+      position: absolute;
+      right: -15%;
+      bottom: -35%;
+      width: 55%;
+      height: 90%;
+      background: radial-gradient(circle, rgba(201, 162, 39, 0.22), transparent 70%);
+      pointer-events: none;
+    }
+    .price-main .label { position: relative; z-index: 1; font-size: 13px; color: var(--muted); letter-spacing: 0.1em; }
+    .price-main .amount {
+      position: relative; z-index: 1;
+      margin: 12px 0 8px;
+      font-family: "Cormorant Garamond", serif;
+      font-size: clamp(36px, 7vw, 52px);
+      font-weight: 600;
+      line-height: 1.1;
+    }
+    .price-main .sub { position: relative; z-index: 1; margin: 0; color: var(--muted); font-size: 14px; }
+    .price-side { display: grid; gap: 12px; }
+    .price-side article {
+      padding: 16px 18px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+    .price-side .label { font-size: 12px; color: var(--muted); letter-spacing: 0.06em; }
+    .price-side .value { margin-top: 4px; font-size: 22px; font-weight: 600; }
+
+    .scroll-x { overflow-x: auto; }
+    table.data {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+    }
+    table.data th, table.data td {
+      border-bottom: 1px solid var(--line);
+      padding: 11px 13px;
+      text-align: left;
+      vertical-align: top;
+    }
+    table.data th {
+      background: #1c222b;
+      color: var(--muted);
+      font-size: 12px;
+      letter-spacing: 0.06em;
+      font-weight: 600;
+    }
+    table.data .num { text-align: right; white-space: nowrap; }
+    table.data tr.subtotal td { background: #1a2028; font-weight: 700; }
+    table.data tr.total td {
+      background: var(--accent);
+      color: #12100a;
+      font-weight: 700;
+      border-bottom: 0;
+    }
+
+    .timeline {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 800px) { .timeline { grid-template-columns: 1fr 1fr; } }
+    .milestone {
+      padding: 16px;
+      background: var(--panel);
+      border-top: 2px solid var(--accent);
+      border: 1px solid var(--line);
+      border-top: 2px solid var(--accent);
+      border-radius: 0 0 4px 4px;
+    }
+    .milestone .m { font-size: 11px; letter-spacing: 0.16em; color: var(--accent); margin-bottom: 6px; }
+    .milestone strong { display: block; margin-bottom: 6px; }
+    .milestone p { margin: 0; font-size: 13px; color: var(--muted); }
+
+    .two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    @media (max-width: 720px) { .two-col { grid-template-columns: 1fr; } }
+    .panel {
+      padding: 18px 20px;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+    }
+    .panel h3 { margin: 0 0 10px; font-size: 15px; }
+    .panel ul { margin: 0; padding-left: 1.1em; color: var(--muted); font-size: 14px; }
+    .panel li { margin-bottom: 6px; }
+
+    footer.site-foot {
+      padding: 36px 0 48px;
+      border-top: 1px solid var(--line);
+      color: var(--muted);
+      font-size: 13px;
+    }
+    footer.site-foot strong {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--ink);
+      font-family: "Cormorant Garamond", serif;
+      font-size: 20px;
+      letter-spacing: 0.06em;
+    }
+
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    @keyframes fadeIn { to { opacity: 1; } }
+    @media print {
+      .nav-sticky, .hero-ctas { display: none !important; }
+      .hero { min-height: auto; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero" id="top">
+    <div class="hero-inner">
+      <p class="brand-mark">Fragments</p>
+      <h1>Literary Fragments · 開発費用見積</h1>
+      <p class="hero-lead">
+        iOS（SwiftUI + WKWebView）と Android（Kotlin）で動く現行 FragmentsApp を、ゼロから同等品質で作り直した場合の逆算見積です。
+        おみくじ文庫とは別プロダクト。制作は Lagado Research Institute。
+      </p>
+      <div class="hero-ctas">
+        <a class="btn btn-primary" href="#summary">金額サマリーへ</a>
+        <a class="btn btn-ghost" href="#detail">明細を見る</a>
+        <a class="btn btn-ghost" href="見積書_FragmentsApp開発費用.md">Markdown</a>
+      </div>
+      <div class="hero-meta">
+        <div>見積番号<strong>FRG-DEV-2026-0714-01</strong></div>
+        <div>見積日<strong>2026年7月14日</strong></div>
+        <div>有効期限<strong>2026年10月31日</strong></div>
+        <div>単価基準<strong>80万円 / 人月</strong></div>
+      </div>
+    </div>
+  </header>
+
+  <nav class="nav-sticky" aria-label="ページ内导航">
+    <div class="nav-sticky-inner">
+      <a href="#summary">サマリー</a>
+      <a href="#scale">コード規模</a>
+      <a href="#detail">明細</a>
+      <a href="#range">金額レンジ</a>
+      <a href="#schedule">工期</a>
+      <a href="#scope">範囲</a>
+      <a href="#payment">支払・受入</a>
+    </div>
+  </nav>
+
+  <main>
+    <div class="wrap">
+      <section id="summary">
+        <p class="kicker">Summary</p>
+        <h2 class="section-title">金額サマリー</h2>
+        <p class="lead">
+          Bundle <code>jp.lagado.pocketfortune</code>、表示名 Fragments。
+          API / Gemini / 位置・天気 / 消費型チケット IAP を含みます。大規模 DB 制作は別途。
+        </p>
+        <div class="price-band">
+          <div class="price-main">
+            <div class="label">プラン A · 必須スコープ（税込）</div>
+            <div class="amount">¥11,440,000</div>
+            <p class="sub">税抜 ¥10,400,000 ／ 工数 13.0 人月 ／ 標準単価 80万</p>
+          </div>
+          <div class="price-side">
+            <article>
+              <div class="label">プラン B · 運用整備込み（税込）</div>
+              <div class="value">¥11,880,000</div>
+            </article>
+            <article>
+              <div class="label">外注換算の中央帯（税抜）</div>
+              <div class="value">¥800万〜¥1,300万</div>
+            </article>
+            <article>
+              <div class="label">対象</div>
+              <div class="value" style="font-size:16px;font-weight:500;">iOS · Android</div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="scale">
+        <p class="kicker">Codebase</p>
+        <h2 class="section-title">コード規模（参考）</h2>
+        <p class="lead"><code>gutenberg_data.json</code> と <code>fragments_db/</code> は除外しています。</p>
+        <div class="scroll-x">
+          <table class="data">
+            <thead>
+              <tr><th>区分</th><th class="num">ファイル</th><th class="num">行数</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>iOS PocketFortune/（Swift / Web）</td><td class="num">約 15</td><td class="num">約 3,700</td></tr>
+              <tr><td>　└ ContentView.swift</td><td class="num">1</td><td class="num">2,443</td></tr>
+              <tr><td>Android android/（Kotlin / XML）</td><td class="num">約 25</td><td class="num">約 3,950</td></tr>
+              <tr><td>deploy / docs / privacy</td><td class="num">数点</td><td class="num">約 320</td></tr>
+              <tr class="subtotal"><td>プログラム合計</td><td class="num">約 47</td><td class="num">約 8,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="detail">
+        <p class="kicker">Line items</p>
+        <h2 class="section-title">見積明細</h2>
+        <div class="scroll-x">
+          <table class="data">
+            <thead>
+              <tr>
+                <th>No.</th><th>項目</th><th>内容</th>
+                <th class="num">工数</th><th class="num">金額（税抜）</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>1</td><td>iOS コア</td><td>SwiftUI、WKWebView、JS Bridge</td><td class="num">2.5</td><td class="num">¥2,000,000</td></tr>
+              <tr><td>2</td><td>Android コア</td><td>Kotlin Activity パリティ</td><td class="num">2.5</td><td class="num">¥2,000,000</td></tr>
+              <tr><td>3</td><td>Web UI</td><td>HTML/CSS/JS、フェード、テーマ</td><td class="num">1.0</td><td class="num">¥800,000</td></tr>
+              <tr><td>4</td><td>API・Gemini</td><td>検索／気配／AI 解説プロキシ</td><td class="num">2.0</td><td class="num">¥1,600,000</td></tr>
+              <tr><td>5</td><td>チケット・IAP</td><td>無料日次、StoreKit 2、Play</td><td class="num">1.5</td><td class="num">¥1,200,000</td></tr>
+              <tr><td>6</td><td>気配・位置</td><td>Atmosphere、天気、許可フォールバック</td><td class="num">1.0</td><td class="num">¥800,000</td></tr>
+              <tr><td>7</td><td>周辺機能</td><td>検索、お気に入り、TTS、翻訳</td><td class="num">1.0</td><td class="num">¥800,000</td></tr>
+              <tr><td>8</td><td>QA・ストア</td><td>二端検証、申請支援</td><td class="num">1.5</td><td class="num">¥1,200,000</td></tr>
+              <tr class="subtotal"><td colspan="3">小計 A</td><td class="num">13.0</td><td class="num">¥10,400,000</td></tr>
+              <tr><td>9</td><td>運用整備（任意）</td><td>デプロイ・検証高度化</td><td class="num">0.5</td><td class="num">¥400,000</td></tr>
+              <tr class="total"><td colspan="3">プラン A 税込合計</td><td class="num">—</td><td class="num">¥11,440,000</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="range">
+        <p class="kicker">Range</p>
+        <h2 class="section-title">体制・単価による金額レンジ</h2>
+        <div class="scroll-x">
+          <table class="data">
+            <thead>
+              <tr><th>パターン</th><th>人月単価</th><th>工数</th><th class="num">税抜合計目安</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>フリーランス</td><td>50〜70万</td><td>10〜15</td><td class="num">¥500万〜¥1,050万</td></tr>
+              <tr><td>制作会社（標準）</td><td>70〜90万</td><td>11〜15</td><td class="num">¥770万〜¥1,350万</td></tr>
+              <tr><td>大手・PM 厚め</td><td>90〜120万</td><td>11〜15</td><td class="num">¥990万〜¥1,800万</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section id="schedule">
+        <p class="kicker">Schedule</p>
+        <h2 class="section-title">想定工期 · 約 5〜8 ヶ月</h2>
+        <div class="timeline">
+          <div class="milestone"><div class="m">M1</div><strong>iOS コア</strong><p>引く・Bridge・テーマ</p></div>
+          <div class="milestone"><div class="m">M2</div><strong>Android</strong><p>主要画面パリティ</p></div>
+          <div class="milestone"><div class="m">M3</div><strong>AI · IAP</strong><p>チケット・Gemini・気配</p></div>
+          <div class="milestone"><div class="m">M4</div><strong>ストア</strong><p>Sandbox・申請・納品</p></div>
+        </div>
+      </section>
+
+      <section id="scope">
+        <p class="kicker">Scope</p>
+        <h2 class="section-title">含まれるもの / 含まれないもの</h2>
+        <div class="two-col">
+          <div class="panel">
+            <h3>含まれる</h3>
+            <ul>
+              <li>iOS / Android クライアント実装</li>
+              <li>Fragments API・Gemini 連携</li>
+              <li>チケットと Sandbox 課金検証</li>
+              <li>気配（位置・天気）</li>
+              <li>プライバシー・検証ドキュメント</li>
+              <li>ソース納品</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>含まれない</h3>
+            <ul>
+              <li>大規模断片 DB 制作・校閲</li>
+              <li>Gemini / ストア運用コスト</li>
+              <li>リリース後 3 ヶ月以降の保守</li>
+              <li>おみくじ文庫との統合</li>
+              <li>Developer 登録料</li>
+              <li>ゼロからの世界観企画</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+
+      <section id="payment">
+        <p class="kicker">Terms</p>
+        <h2 class="section-title">お支払例 · 受け入れ基準</h2>
+        <div class="two-col">
+          <div class="panel">
+            <h3>支払（例）</h3>
+            <ul>
+              <li>着手金 30% · 契約後</li>
+              <li>中間 40% · M3 完了時</li>
+              <li>残金 30% · 受入後 30 日以内</li>
+            </ul>
+          </div>
+          <div class="panel">
+            <h3>受け入れ（例）</h3>
+            <ul>
+              <li>二端で引く・お気に入り・検索</li>
+              <li>AI 失敗時にチケット非消費</li>
+              <li>Sandbox 購入加算</li>
+              <li>位置拒否・機内モードで安全</li>
+              <li>検証ドキュメントの必須項目</li>
+            </ul>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <footer class="site-foot">
+    <div class="wrap" style="padding-top:0;padding-bottom:0;">
+      <strong>Lagado Research Institute</strong>
+      Literary Fragments · FragmentsApp 開発費用見積<br />
+      見積番号 FRG-DEV-2026-0714-01 ·
+      <a href="見積書_FragmentsApp開発費用.md">Markdown 全文</a>
+    </div>
+  </footer>
+</body>
+</html>

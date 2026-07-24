@@ -60,12 +60,49 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
             override fun onPageFinished(view: WebView?, url: String?) {
                 super.onPageFinished(view, url)
                 applyWebViewTheme()
+                // プロセス再生成などで WebView が空になったとき、直近の言葉を戻す
+                restoreDisplayedQuoteIfNeeded()
             }
         }
 
         webView.loadUrl("file:///android_asset/index.html")
 
         handleIntent(intent)
+    }
+
+    override fun onConfigurationChanged(newConfig: Configuration) {
+        super.onConfigurationChanged(newConfig)
+        // 向き変更で Activity を作り直さない（configChanges）。テーマだけ追従。
+        applyNativeTheme()
+        applyWebViewTheme()
+    }
+
+    /** WebView DOM が空なら履歴の先頭（直近）を再表示。意図的な初回空画面は履歴なしでそのまま。 */
+    private fun restoreDisplayedQuoteIfNeeded() {
+        try {
+            if (intent?.hasExtra("forceQuote") == true) return
+            val last = QuoteStorage.getHistory(this).firstOrNull() ?: return
+            if (last.text.isBlank()) return
+            webView.evaluateJavascript(
+                """
+                (function() {
+                  try {
+                    var el = document.getElementById('quote-text');
+                    if (!el) return 'noel';
+                    var t = (el.innerText || '').trim();
+                    if (t.length > 0) return 'ok';
+                    return 'empty';
+                  } catch (e) { return 'err'; }
+                })();
+                """.trimIndent(),
+            ) { status ->
+                if (status == "\"empty\"") {
+                    bridge.restoreQuoteQuietly(last)
+                }
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
     }
 
     private fun applyNativeTheme() {
@@ -239,24 +276,43 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     currentHistoryIndex = quoteHistory.size - 1
 
                     vibrate(30L)
-                    val escapedQuote = escapeJS(quote)
-                    val escapedTitle = escapeJS(title)
-                    val escapedAuthor = escapeJS(author)
-                    val escapedKeyword = escapeJS(currentSearchKeyword)
-
-                    val js = """
-                        try {
-                            if(window.setSearchKeyword) { window.setSearchKeyword('$escapedKeyword'); }
-                            var display = document.getElementById('quote-text');
-                            var sourceArea = document.getElementById('source-area');
-                            if (display) { display.style.transition = ''; display.style.opacity = ''; }
-                            if (sourceArea) { sourceArea.style.transition = ''; sourceArea.style.opacity = ''; }
-                            if(window.displayQuoteWithFade) { window.displayQuoteWithFade('$escapedQuote', '$escapedTitle', '$escapedAuthor'); }
-                        } catch(e) {}
-                    """.trimIndent()
-                    webView.evaluateJavascript(js, null)
+                    pushQuoteToWebView(quoteData, withKeyword = true)
                 } catch (e: Exception) { e.printStackTrace() }
             }
+        }
+
+        /** 回転・再生成後の復帰用。履歴追加・振動なし。 */
+        fun restoreQuoteQuietly(quoteData: QuoteData) {
+            runOnUiThread {
+                try {
+                    if (quoteHistory.none { it.text == quoteData.text }) {
+                        quoteHistory.add(quoteData)
+                        currentHistoryIndex = quoteHistory.size - 1
+                    } else {
+                        currentHistoryIndex = quoteHistory.indexOfFirst { it.text == quoteData.text }
+                    }
+                    pushQuoteToWebView(quoteData, withKeyword = false)
+                } catch (e: Exception) { e.printStackTrace() }
+            }
+        }
+
+        private fun pushQuoteToWebView(quoteData: QuoteData, withKeyword: Boolean) {
+            val escapedQuote = escapeJS(quoteData.text)
+            val escapedTitle = escapeJS(quoteData.title)
+            val escapedAuthor = escapeJS(quoteData.author)
+            val escapedKeyword = if (withKeyword) escapeJS(currentSearchKeyword) else ""
+
+            val js = """
+                try {
+                    if(window.setSearchKeyword) { window.setSearchKeyword('$escapedKeyword'); }
+                    var display = document.getElementById('quote-text');
+                    var sourceArea = document.getElementById('source-area');
+                    if (display) { display.style.transition = ''; display.style.opacity = ''; }
+                    if (sourceArea) { sourceArea.style.transition = ''; sourceArea.style.opacity = ''; }
+                    if(window.displayQuoteWithFade) { window.displayQuoteWithFade('$escapedQuote', '$escapedTitle', '$escapedAuthor'); }
+                } catch(e) {}
+            """.trimIndent()
+            webView.evaluateJavascript(js, null)
         }
 
         fun spinToSpecificQuote(quote: String, title: String, author: String) {
@@ -604,6 +660,7 @@ object AppSharedState {
     @Volatile var isAtmosphereMode = false
     @Volatile var currentAtmosphereKeywords = ""
     @Volatile var atmosphereFortunes: List<Map<String, String>> = emptyList()
+    @Volatile var atmospherePlaceKeywords: List<String> = emptyList()
 
     fun clear() {
         isFiltering = false
@@ -612,5 +669,6 @@ object AppSharedState {
         isAtmosphereMode = false
         currentAtmosphereKeywords = ""
         atmosphereFortunes = emptyList()
+        atmospherePlaceKeywords = emptyList()
     }
 }

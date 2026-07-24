@@ -255,6 +255,128 @@ enum SearchScope: CaseIterable {
     }
 }
 
+/// Gutenberg 英語コーパス向けの「国・土地」文学キーワード。気配検索では気候より優先する。
+enum PlaceLiteraryLexicon {
+    static let byISO: [String: [String]] = [
+        "JP": ["Japan", "Japanese", "Tokyo", "Kyoto", "Osaka", "Edo", "Nippon", "Fuji"],
+        "IT": ["Italy", "Italian", "Rome", "Venice", "Florence", "Naples", "Sicily", "Roman"],
+        "EG": ["Egypt", "Egyptian", "Nile", "Cairo", "Alexandria", "Pyramid", "Pharaoh"],
+        "US": ["America", "American", "New York", "Boston", "Chicago", "Mississippi"],
+        "GB": ["England", "English", "London", "Britain", "British", "Thames"],
+        "UK": ["England", "English", "London", "Britain", "British", "Thames"],
+        "FR": ["France", "French", "Paris", "Seine", "Provence"],
+        "DE": ["Germany", "German", "Berlin", "Rhine", "Bavaria"],
+        "CN": ["China", "Chinese", "Peking", "Beijing", "Shanghai", "Yangtze"],
+        "KR": ["Korea", "Korean", "Seoul"],
+        "ES": ["Spain", "Spanish", "Madrid", "Barcelona", "Andalusia"],
+        "PT": ["Portugal", "Portuguese", "Lisbon"],
+        "RU": ["Russia", "Russian", "Moscow", "Petersburg", "Siberia"],
+        "IN": ["India", "Indian", "Delhi", "Bombay", "Ganges", "Calcutta"],
+        "GR": ["Greece", "Greek", "Athens", "Sparta", "Aegean"],
+        "TR": ["Turkey", "Turkish", "Istanbul", "Constantinople", "Ottoman"],
+        "BR": ["Brazil", "Brazilian", "Rio", "Amazon"],
+        "MX": ["Mexico", "Mexican", "Aztec"],
+        "CA": ["Canada", "Canadian", "Montreal", "Quebec"],
+        "AU": ["Australia", "Australian", "Sydney", "Melbourne"],
+        "NZ": ["Zealand", "Maori"],
+        "IE": ["Ireland", "Irish", "Dublin"],
+        "NL": ["Holland", "Dutch", "Amsterdam"],
+        "SE": ["Sweden", "Swedish", "Stockholm"],
+        "NO": ["Norway", "Norwegian", "fjord"],
+        "DK": ["Denmark", "Danish", "Copenhagen"],
+        "FI": ["Finland", "Finnish"],
+        "PL": ["Poland", "Polish", "Warsaw"],
+        "CZ": ["Bohemia", "Prague", "Czech"],
+        "AT": ["Austria", "Austrian", "Vienna", "Vienna"],
+        "CH": ["Switzerland", "Swiss", "Alpine"],
+        "BE": ["Belgium", "Belgian", "Brussels"],
+        "AR": ["Argentina", "Argentine", "Buenos Aires"],
+        "ZA": ["Africa", "African", "Cape"],
+        "NG": ["Africa", "African", "Nigeria"],
+        "KE": ["Africa", "African", "Kenya"],
+        "MA": ["Morocco", "Moorish", "Casablanca"],
+        "SA": ["Arabia", "Arabian", "Mecca"],
+        "AE": ["Arabia", "Arabian", "desert"],
+        "IL": ["Jerusalem", "Israel", "Palestine", "Hebrew"],
+        "IR": ["Persia", "Persian", "Iran"],
+        "IQ": ["Babylon", "Baghdad", "Mesopotamia"],
+        "TH": ["Siam", "Thailand", "Bangkok"],
+        "VN": ["Vietnam", "Annam", "Saigon"],
+        "PH": ["Philippine", "Manila"],
+        "ID": ["Java", "Bali", "Indies"],
+        "SG": ["Singapore"],
+        "TW": ["Formosa", "Taiwan"],
+        "HK": ["Hong Kong", "China"],
+        "PE": ["Peru", "Inca", "Andes"],
+        "CL": ["Chile", "Andes"],
+        "CO": ["Colombia", "Andes"],
+        "CU": ["Cuba", "Cuban", "Havana"],
+        "IS": ["Iceland", "Icelandic"],
+        "UA": ["Ukraine", "Ukrainian", "Kiev"],
+        "HU": ["Hungary", "Hungarian", "Budapest"],
+        "RO": ["Romania", "Romanian", "Danube"]
+    ]
+
+    static func uniquePreserve(_ items: [String]) -> [String] {
+        var seen = Set<String>()
+        var out: [String] = []
+        for raw in items {
+            let t = raw.trimmingCharacters(in: .whitespacesAndNewlines)
+            guard !t.isEmpty else { continue }
+            let key = t.lowercased()
+            if seen.insert(key).inserted { out.append(t) }
+        }
+        return out
+    }
+
+    /// 検索用（英語中心）と表示用の地名ラベルを返す。国系キーワードを先頭に厚く積む。
+    static func build(
+        isoCountryCode: String?,
+        countryName: String?,
+        adminArea: String?,
+        city: String?,
+        preferJapaneseDisplay: Bool
+    ) -> (search: [String], displayPlace: String) {
+        var search: [String] = []
+        let iso = (isoCountryCode ?? "").uppercased()
+        if let lex = byISO[iso] {
+            search.append(contentsOf: Array(lex.prefix(6)))
+            // 国ヒット率を上げるため先頭語を重ねる
+            if let head = lex.first { search.insert(head, at: 0); search.insert(head, at: 0) }
+        }
+        if let countryName = countryName, !countryName.isEmpty {
+            search.append(countryName)
+        }
+        if let adminArea = adminArea, !adminArea.isEmpty {
+            search.append(adminArea)
+        }
+        if let city = city, !city.isEmpty {
+            search.append(city)
+        }
+        search = uniquePreserve(search)
+
+        let displayCountry: String = {
+            if preferJapaneseDisplay {
+                // reverseGeocode の preferredLocale が ja なら country が日本語になりやすい
+                return countryName?.isEmpty == false ? (countryName ?? "") : (byISO[iso]?.first ?? iso)
+            }
+            return byISO[iso]?.first ?? countryName ?? iso
+        }()
+        let displayCity = city ?? ""
+        let displayPlace: String = {
+            if preferJapaneseDisplay {
+                if !displayCountry.isEmpty && !displayCity.isEmpty { return "\(displayCountry)・\(displayCity)" }
+                if !displayCountry.isEmpty { return displayCountry }
+                return displayCity
+            }
+            if !displayCountry.isEmpty && !displayCity.isEmpty { return "\(displayCountry) · \(displayCity)" }
+            if !displayCountry.isEmpty { return displayCountry }
+            return displayCity
+        }()
+        return (search, displayPlace)
+    }
+}
+
 class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     static let shared = AtmosphereManager()
     private let locationManager = CLLocationManager()
@@ -303,7 +425,14 @@ class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
     
     private func failToKyoto() {
         let isJapanese = currentLanguage == "日本語" || currentLanguage.contains("Japanese")
-        fetchWeather(lat: 35.0116, lon: 135.7681, city: isJapanese ? "京都" : "Kyoto")
+        fetchWeather(
+            lat: 35.0116,
+            lon: 135.7681,
+            iso: "JP",
+            country: isJapanese ? "日本" : "Japan",
+            admin: isJapanese ? "京都府" : "Kyoto",
+            city: isJapanese ? "京都市" : "Kyoto"
+        )
     }
     
     func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
@@ -316,10 +445,24 @@ class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
             let geocoder = CLGeocoder()
             do {
                 let placemarks = try await geocoder.reverseGeocodeLocation(loc, preferredLocale: locale)
-                let city = placemarks.first?.locality ?? ""
-                self.fetchWeather(lat: loc.coordinate.latitude, lon: loc.coordinate.longitude, city: city)
+                let pm = placemarks.first
+                self.fetchWeather(
+                    lat: loc.coordinate.latitude,
+                    lon: loc.coordinate.longitude,
+                    iso: pm?.isoCountryCode,
+                    country: pm?.country,
+                    admin: pm?.administrativeArea,
+                    city: pm?.locality ?? pm?.subAdministrativeArea ?? ""
+                )
             } catch {
-                self.fetchWeather(lat: loc.coordinate.latitude, lon: loc.coordinate.longitude, city: "")
+                self.fetchWeather(
+                    lat: loc.coordinate.latitude,
+                    lon: loc.coordinate.longitude,
+                    iso: nil,
+                    country: nil,
+                    admin: nil,
+                    city: ""
+                )
             }
         }
     }
@@ -328,7 +471,7 @@ class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         failToKyoto()
     }
     
-    private func fetchWeather(lat: Double, lon: Double, city: String) {
+    private func fetchWeather(lat: Double, lon: Double, iso: String?, country: String?, admin: String?, city: String) {
         let urlStr = "https://api.open-meteo.com/v1/forecast?latitude=\(lat)&longitude=\(lon)&current_weather=true"
         guard let url = URL(string: urlStr) else { failToKyoto(); return }
         
@@ -343,11 +486,27 @@ class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
                 temp = current["temperature"] as? Double ?? 0
                 weatherCode = current["weathercode"] as? Int ?? 0
             }
-            self.generateKeywords(windSpeed: windSpeed, temp: temp, weatherCode: weatherCode, city: city)
+            self.generateKeywords(
+                windSpeed: windSpeed,
+                temp: temp,
+                weatherCode: weatherCode,
+                iso: iso,
+                country: country,
+                admin: admin,
+                city: city
+            )
         }.resume()
     }
     
-    private func generateKeywords(windSpeed: Double, temp: Double, weatherCode: Int, city: String) {
+    private func generateKeywords(
+        windSpeed: Double,
+        temp: Double,
+        weatherCode: Int,
+        iso: String?,
+        country: String?,
+        admin: String?,
+        city: String
+    ) {
         let now = Date()
         let calendar = Calendar.current
         let month = calendar.component(.month, from: now)
@@ -373,28 +532,32 @@ class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         default: condition = "Clear"
         }
         
-        var searchKeywords: [String] = []
+        let isJapanese = currentLanguage == "日本語" || currentLanguage.contains("Japanese")
+        let place = PlaceLiteraryLexicon.build(
+            isoCountryCode: iso,
+            countryName: country,
+            adminArea: admin,
+            city: city,
+            preferJapaneseDisplay: isJapanese
+        )
+        
+        var searchKeywords: [String] = place.search
         
         let sWords = ["Spring": ["Spring", "Blossom", "Flower"], "Summer": ["Summer", "Sun", "Sea"], "Autumn": ["Autumn", "Leaf", "Fall"], "Winter": ["Winter", "Snow", "Ice"]][season] ?? [season]
         let tWords = ["Morning": ["Morning", "Dawn", "Light"], "Daytime": ["Day", "Sunlight", "Sky"], "Evening": ["Evening", "Dusk", "Sunset"], "Night": ["Night", "Dark", "Dream"]][sunStr] ?? [sunStr]
         let wWords = ["Clear": ["Clear", "Sky", "Light"], "Cloudy": ["Cloud", "Gray"], "Rain": ["Rain", "Drop", "Water"], "Snow": ["Snow", "White"], "Fog": ["Fog", "Mist"], "Storm": ["Storm", "Wind"]][condition] ?? [condition]
         
+        // 気候・時間は従来どおり足すが、国・土地より後ろ（比重は場所優先）
         searchKeywords.append(sWords[0])
-        if sWords.count > 1 { searchKeywords.append(sWords.dropFirst().randomElement()!) }
-        
         searchKeywords.append(tWords[0])
-        if tWords.count > 1 { searchKeywords.append(tWords.dropFirst().randomElement()!) }
-        
         searchKeywords.append(wWords[0])
-        if wWords.count > 1 { searchKeywords.append(wWords.dropFirst().randomElement()!) }
+        searchKeywords = PlaceLiteraryLexicon.uniquePreserve(searchKeywords)
         
         var displaySeason = season
         var displaySun = sunStr
         var displayWind = windStr
         var displayMoon = moonStr
         var displayCond = condition
-        
-        let isJapanese = currentLanguage == "日本語" || currentLanguage.contains("Japanese")
         
         if isJapanese {
             let sMap = ["Spring": "春", "Summer": "夏", "Autumn": "秋", "Winter": "冬"]
@@ -411,18 +574,20 @@ class AtmosphereManager: NSObject, ObservableObject, CLLocationManagerDelegate {
         }
         
         let tempInt = Int(round(temp))
+        let placeLabel = place.displayPlace
         var displayString = ""
         
         if isJapanese {
-            let prefix = city.isEmpty ? "" : city + "の"
+            let prefix = placeLabel.isEmpty ? "" : placeLabel + "\n"
             displayString = prefix + displaySeason + "、" + displaySun + "\n" + displayCond + " / " + displayWind + " / " + displayMoon + "\n(" + String(tempInt) + "°C)"
         } else {
-            let prefix = city.isEmpty ? "" : city + " • "
+            let prefix = placeLabel.isEmpty ? "" : placeLabel + "\n"
             displayString = prefix + displaySeason + ", " + displaySun + "\n" + displayCond + " / " + displayWind + " / " + displayMoon + "\n(" + String(tempInt) + "°C)"
         }
         
         DispatchQueue.main.async {
             self.isSensing = false
+            QuoteDatabase.shared.atmospherePlaceKeywords = Array(place.search.prefix(8))
             self.completion?(searchKeywords, displayString)
         }
     }
@@ -467,6 +632,8 @@ class QuoteDatabase: ObservableObject {
     @Published var isAtmosphereMode = false
     @Published var currentAtmosphereKeywords: [String] = []
     @Published var totalAtmosphereHitCount: Int = 0
+    /// 気配検索で場所を優先ソートするための国・都市キーワード
+    var atmospherePlaceKeywords: [String] = []
     
     private var preloadedRandomQuote: [String: Any]? = nil
     private let apiBaseURL = "https://lagado.jp/fragments/api.php"
@@ -575,6 +742,7 @@ class QuoteDatabase: ObservableObject {
                     self.currentAtmosphereKeywords = []
                     self.atmosphereFortunes = []
                     self.totalAtmosphereHitCount = 0
+                    self.atmospherePlaceKeywords = []
                     
                     self.isFiltering = true
                     self.currentSearchText = cleanText
@@ -588,6 +756,27 @@ class QuoteDatabase: ObservableObject {
         }.resume()
     }
     
+    private func preferPlaceMatches(_ results: [[String: Any]], placeKeys: [String]) -> [[String: Any]] {
+        guard !placeKeys.isEmpty, !results.isEmpty else { return results }
+        let keys = placeKeys.map { $0.lowercased() }
+        let scored: [(Int, [String: Any])] = results.map { row in
+            let hay = [
+                String(describing: row["quote"] ?? ""),
+                String(describing: row["title"] ?? ""),
+                String(describing: row["author"] ?? "")
+            ].joined(separator: " ").lowercased()
+            let score = keys.reduce(0) { partial, key in
+                partial + (hay.contains(key) ? 3 : 0)
+            }
+            return (score, row)
+        }
+        let ranked = scored.sorted { $0.0 > $1.0 }
+        let strong = ranked.filter { $0.0 > 0 }.map { $0.1 }
+        if strong.isEmpty { return results }
+        let weak = ranked.filter { $0.0 == 0 }.map { $0.1 }
+        return strong + weak
+    }
+
     func fetchQuotesForAtmosphere(keywords: [String], completion: @escaping ([String: Any]?) -> Void) {
         let cleanKeywords = keywords.map { $0.trimmingCharacters(in: .whitespacesAndNewlines) }.filter { !$0.isEmpty }
         let joined = cleanKeywords.joined(separator: ",")
@@ -599,17 +788,20 @@ class QuoteDatabase: ObservableObject {
         URLSession.shared.dataTask(with: url) { data, _, _ in
             if let data = data, let results = try? JSONSerialization.jsonObject(with: data) as? [[String: Any]], !results.isEmpty {
                 DispatchQueue.main.async {
+                    let ranked = self.preferPlaceMatches(results, placeKeys: self.atmospherePlaceKeywords)
                     self.isAtmosphereMode = true
                     self.currentAtmosphereKeywords = cleanKeywords
-                    self.atmosphereFortunes = results
-                    self.totalAtmosphereHitCount = results.count
+                    self.atmosphereFortunes = ranked
+                    self.totalAtmosphereHitCount = ranked.count
                     
                     self.isFiltering = false
                     self.currentSearchText = ""
                     self.filteredFortunes = []
                     self.totalHitCount = 0
                     
-                    completion(results.randomElement())
+                    // 場所ヒット優先の先頭群からランダム（全世界対応）
+                    let placeBoost = min(ranked.count, max(8, ranked.count / 3))
+                    completion(Array(ranked.prefix(placeBoost)).randomElement() ?? ranked.randomElement())
                 }
             } else {
                 DispatchQueue.main.async { completion(nil) }
@@ -622,7 +814,11 @@ class QuoteDatabase: ObservableObject {
     }
     
     func clearAtmosphere() {
-        isAtmosphereMode = false; currentAtmosphereKeywords = []; atmosphereFortunes = []; totalAtmosphereHitCount = 0
+        isAtmosphereMode = false
+        currentAtmosphereKeywords = []
+        atmosphereFortunes = []
+        totalAtmosphereHitCount = 0
+        atmospherePlaceKeywords = []
     }
 }
 

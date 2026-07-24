@@ -22,10 +22,24 @@ class TicketStoreActivity : AppCompatActivity() {
     private var isDark = false
     private var swipeStartY = 0f
     private var isAnimatingOut = false
+    private var purchaseBusy = false
+
+    private lateinit var licenseManager: TicketLicenseManager
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_ticket_store)
+
+        licenseManager = TicketLicenseManager(this) { status ->
+            runOnUiThread {
+                updateTicketDisplay()
+                if (status.phase == "prices") {
+                    rebuildStoreList()
+                }
+            }
+        }
+        licenseManager.attachActivity(this)
+        licenseManager.start()
 
         onBackPressedDispatcher.addCallback(this, object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
@@ -36,15 +50,39 @@ class TicketStoreActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnBack).setOnClickListener { closeScreen() }
 
         applyDarkModeColors()
+        rebuildStoreList()
+        updateTicketDisplay()
+    }
 
+    override fun onDestroy() {
+        licenseManager.destroy()
+        super.onDestroy()
+    }
+
+    private fun rebuildStoreList() {
         val storeList = findViewById<LinearLayout>(R.id.storeList)
         storeList.removeAllViews()
-
-        addStoreItem(storeList, 100, "¥150", null)
-        addStoreItem(storeList, 1000, "¥900", "MOST POPULAR")
-        addStoreItem(storeList, 10000, "¥4,500", "BEST VALUE")
-
-        updateTicketDisplay()
+        addStoreItem(
+            storeList,
+            TicketLicenseManager.PRODUCT_100,
+            100,
+            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_100),
+            null,
+        )
+        addStoreItem(
+            storeList,
+            TicketLicenseManager.PRODUCT_1000,
+            1000,
+            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_1000),
+            "MOST POPULAR",
+        )
+        addStoreItem(
+            storeList,
+            TicketLicenseManager.PRODUCT_10000,
+            10000,
+            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_10000),
+            "BEST VALUE",
+        )
     }
 
     private fun closeScreen() {
@@ -157,18 +195,53 @@ class TicketStoreActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.textCurrentTickets).text = current.toString()
     }
 
-    private fun addStoreItem(parent: LinearLayout, amount: Int, price: String, badge: String?) {
+    private fun addStoreItem(
+        parent: LinearLayout,
+        productId: String,
+        amount: Int,
+        price: String,
+        badge: String?,
+    ) {
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(16, 32, 16, 32)
 
             setOnClickListener {
-                val prefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
-                val current = prefs.getInt("remainingTickets", 0)
-                prefs.edit().putInt("remainingTickets", current + amount).apply()
-                updateTicketDisplay()
-                Toast.makeText(this@TicketStoreActivity, "$amount 枚のチケットを購入しました！", Toast.LENGTH_SHORT).show()
+                if (purchaseBusy || isAnimatingOut) return@setOnClickListener
+                purchaseBusy = true
+                licenseManager.purchase(productId) { status ->
+                    runOnUiThread {
+                        purchaseBusy = false
+                        updateTicketDisplay()
+                        when {
+                            status.ok && status.phase == "purchased" -> {
+                                Toast.makeText(
+                                    this@TicketStoreActivity,
+                                    "$amount 枚のチケットを購入しました！",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
+                            status.phase == "cancelled" -> {
+                                // ユーザーキャンセル — 黙って戻る
+                            }
+                            status.phase == "product_unavailable" -> {
+                                Toast.makeText(
+                                    this@TicketStoreActivity,
+                                    "商品を読み込めませんでした",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
+                            else -> {
+                                Toast.makeText(
+                                    this@TicketStoreActivity,
+                                    "購入に失敗しました",
+                                    Toast.LENGTH_SHORT,
+                                ).show()
+                            }
+                        }
+                    }
+                }
             }
         }
 

@@ -1,14 +1,16 @@
 package jp.lagado.literaryfragments
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.graphics.Color
 import android.graphics.drawable.GradientDrawable
+import android.location.Geocoder
+import android.location.Location
+import android.location.LocationManager
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.view.Gravity
 import android.view.KeyEvent
 import android.view.MotionEvent
 import android.view.View
@@ -28,6 +30,8 @@ import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import org.json.JSONArray
 import org.json.JSONObject
 import java.io.BufferedReader
@@ -35,6 +39,7 @@ import java.io.InputStreamReader
 import java.net.HttpURLConnection
 import java.net.URL
 import java.util.Calendar
+import java.util.Locale
 import kotlin.math.roundToInt
 
 class SettingsActivity : AppCompatActivity() {
@@ -42,10 +47,16 @@ class SettingsActivity : AppCompatActivity() {
     private val apiBaseURL = "https://lagado.jp/fragments/api.php"
     private var selectedScope = "all"
     private var atmosphereKeywords = ""
+    private var atmospherePlaceKeys: List<String> = emptyList()
     private var isInitialAi = true
+    private var pendingSenseAfterPermission = false
 
     private var swipeStartY = 0f
     private var isAnimatingOut = false
+
+    companion object {
+        private const val REQ_LOCATION = 4101
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,32 +93,7 @@ class SettingsActivity : AppCompatActivity() {
             textSense.setTextColor(Color.GRAY)
             progressSense.visibility = View.VISIBLE
             btnSenseMoment.isEnabled = false
-
-            Thread {
-                val weatherStr = fetchWeatherAndGenerateKeywords(35.0116, 135.7681)
-                runOnUiThread {
-                    try {
-                        textSense.text = "今の気配を読み取る"
-
-                        val currentPrefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
-                        val theme = currentPrefs.getInt("themePreference", 0)
-                        val isDarkApp = when (theme) {
-                            1 -> false
-                            2 -> true
-                            else -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
-                        }
-
-                        textSense.setTextColor(if (isDarkApp) Color.WHITE else Color.parseColor("#1D1D1D"))
-                        progressSense.visibility = View.GONE
-                        btnSenseMoment.isEnabled = true
-
-                        textAtmosphereResult.text = weatherStr
-                        textAtmosphereResult.setTextColor(if (isDarkApp) Color.WHITE else Color.parseColor("#1D1D1D"))
-
-                        overlayAtmosphere.visibility = View.VISIBLE
-                    } catch (e: Exception) { e.printStackTrace() }
-                }
-            }.start()
+            beginSenseMoment()
         }
 
         findViewById<Button>(R.id.btnCancelAtmosphere).setOnClickListener { overlayAtmosphere.visibility = View.GONE }
@@ -118,6 +104,7 @@ class SettingsActivity : AppCompatActivity() {
         btnDrawAtmosphere.setOnClickListener {
             btnDrawAtmosphere.text = ""
             progressDrawAtmosphere.visibility = View.VISIBLE
+            AppSharedState.atmospherePlaceKeywords = atmospherePlaceKeys
             val encoded = java.net.URLEncoder.encode(atmosphereKeywords, "UTF-8")
             fetchAndReturnToMain("$apiBaseURL?action=atmosphere&keywords=$encoded&mode=${getModeStr()}", skipRoulette = false, searchKeyword = atmosphereKeywords, isAtmosphere = true)
         }
@@ -271,6 +258,117 @@ class SettingsActivity : AppCompatActivity() {
         }
     }
 
+    private fun beginSenseMoment() {
+        val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        val coarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+        if (!fine && !coarse) {
+            pendingSenseAfterPermission = true
+            ActivityCompat.requestPermissions(
+                this,
+                arrayOf(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION),
+                REQ_LOCATION
+            )
+            return
+        }
+        runSenseOnBackgroundThread()
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == REQ_LOCATION && pendingSenseAfterPermission) {
+            pendingSenseAfterPermission = false
+            runSenseOnBackgroundThread()
+        }
+    }
+
+    private fun runSenseOnBackgroundThread() {
+        Thread {
+            val coords = resolveDeviceLocationOrKyoto()
+            val weatherStr = fetchWeatherAndGenerateKeywords(
+                lat = coords.first,
+                lon = coords.second,
+                iso = coords.third.iso,
+                country = coords.third.country,
+                admin = coords.third.admin,
+                city = coords.third.city
+            )
+            runOnUiThread {
+                try {
+                    val textSense = findViewById<TextView>(R.id.textSense)
+                    val progressSense = findViewById<ProgressBar>(R.id.progressSense)
+                    val btnSenseMoment = findViewById<LinearLayout>(R.id.btnSenseMoment)
+                    val overlayAtmosphere = findViewById<FrameLayout>(R.id.overlayAtmosphere)
+                    val textAtmosphereResult = findViewById<TextView>(R.id.textAtmosphereResult)
+
+                    textSense.text = "今の気配を読み取る"
+
+                    val currentPrefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
+                    val theme = currentPrefs.getInt("themePreference", 0)
+                    val isDarkApp = when (theme) {
+                        1 -> false
+                        2 -> true
+                        else -> (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) == Configuration.UI_MODE_NIGHT_YES
+                    }
+
+                    textSense.setTextColor(if (isDarkApp) Color.WHITE else Color.parseColor("#1D1D1D"))
+                    progressSense.visibility = View.GONE
+                    btnSenseMoment.isEnabled = true
+
+                    textAtmosphereResult.text = weatherStr
+                    textAtmosphereResult.setTextColor(if (isDarkApp) Color.WHITE else Color.parseColor("#1D1D1D"))
+
+                    overlayAtmosphere.visibility = View.VISIBLE
+                } catch (e: Exception) { e.printStackTrace() }
+            }
+        }.start()
+    }
+
+    private data class PlaceBits(val iso: String?, val country: String?, val admin: String?, val city: String)
+
+    private fun resolveDeviceLocationOrKyoto(): Triple<Double, Double, PlaceBits> {
+        val fallback = Triple(35.0116, 135.7681, PlaceBits("JP", "日本", "京都府", "京都市"))
+        try {
+            val fine = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            val coarse = ContextCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) == PackageManager.PERMISSION_GRANTED
+            if (!fine && !coarse) return fallback
+
+            val lm = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            val providers = listOf(LocationManager.GPS_PROVIDER, LocationManager.NETWORK_PROVIDER, LocationManager.PASSIVE_PROVIDER)
+            var best: Location? = null
+            for (p in providers) {
+                try {
+                    val loc = lm.getLastKnownLocation(p) ?: continue
+                    if (best == null || loc.time > best!!.time) best = loc
+                } catch (_: SecurityException) { }
+            }
+            val loc = best ?: return fallback
+            val bits = reverseGeocode(loc.latitude, loc.longitude) ?: PlaceBits(null, null, null, "")
+            return Triple(loc.latitude, loc.longitude, bits)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            return fallback
+        }
+    }
+
+    @Suppress("DEPRECATION")
+    private fun reverseGeocode(lat: Double, lon: Double): PlaceBits? {
+        return try {
+            if (!Geocoder.isPresent()) return null
+            val geocoder = Geocoder(this, Locale.JAPAN)
+            val list = geocoder.getFromLocation(lat, lon, 1)
+            val a = list?.firstOrNull() ?: return null
+            PlaceBits(
+                iso = a.countryCode,
+                country = a.countryName,
+                admin = a.adminArea,
+                city = a.locality ?: a.subAdminArea ?: ""
+            )
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+    }
+
     private fun closeScreen() {
         if (isAnimatingOut) return
         isAnimatingOut = true
@@ -361,7 +459,14 @@ class SettingsActivity : AppCompatActivity() {
 
     private fun getModeStr() = if (getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE).getInt("quoteLengthMode", 0) == 1) "long" else "short"
 
-    private fun fetchWeatherAndGenerateKeywords(lat: Double, lon: Double): String {
+    private fun fetchWeatherAndGenerateKeywords(
+        lat: Double,
+        lon: Double,
+        iso: String?,
+        country: String?,
+        admin: String?,
+        city: String
+    ): String {
         var windSpeed = 0.0; var temp = 20.0; var weatherCode = 0
         try {
             val url = URL("https://api.open-meteo.com/v1/forecast?latitude=$lat&longitude=$lon&current_weather=true")
@@ -385,13 +490,43 @@ class SettingsActivity : AppCompatActivity() {
         val windStr = if (windSpeed < 5) "Calm" else if (windSpeed > 20) "Windy" else "Breezy"
         val condition = when (weatherCode) { in 1..3 -> "Cloudy"; 45, 48 -> "Fog"; in 51..67, in 80..82 -> "Rain"; in 71..77, in 85..86 -> "Snow"; in 95..99 -> "Storm"; else -> "Clear" }
 
+        val place = PlaceLiteraryLexicon.build(
+            isoCountryCode = iso,
+            countryName = country,
+            adminArea = admin,
+            city = city,
+            preferJapaneseDisplay = true
+        )
+        val search = PlaceLiteraryLexicon.uniquePreserve(
+            place.search + listOf(season, sunStr, condition)
+        )
+        atmosphereKeywords = search.joinToString(",")
+        atmospherePlaceKeys = place.placeKeysForRank
+
         val sMap = mapOf("Spring" to "春", "Summer" to "夏", "Autumn" to "秋", "Winter" to "冬")
         val sunMap = mapOf("Morning" to "朝", "Daytime" to "昼", "Evening" to "夕暮れ", "Night" to "夜")
         val wMap = mapOf("Calm" to "穏やか", "Breezy" to "そよ風", "Windy" to "風")
         val cMap = mapOf("Clear" to "晴れ", "Cloudy" to "曇り", "Rain" to "雨", "Snow" to "雪", "Fog" to "霧", "Storm" to "嵐")
 
-        atmosphereKeywords = "$season,$sunStr,$condition"
-        return "京都の\n${sMap[season]}、${sunMap[sunStr]}\n${cMap[condition]} / ${wMap[windStr]}\n(${temp.roundToInt()}°C)"
+        val placePrefix = if (place.displayPlace.isNotEmpty()) "${place.displayPlace}\n" else ""
+        return "$placePrefix${sMap[season]}、${sunMap[sunStr]}\n${cMap[condition]} / ${wMap[windStr]}\n(${temp.roundToInt()}°C)"
+    }
+
+    private fun preferPlaceMatches(
+        results: List<Map<String, String>>,
+        placeKeys: List<String>
+    ): List<Map<String, String>> {
+        if (placeKeys.isEmpty() || results.isEmpty()) return results
+        val keys = placeKeys.map { it.lowercase() }
+        val scored = results.map { row ->
+            val hay = listOf(row["quote"], row["title"], row["author"]).joinToString(" ").lowercase()
+            val score = keys.sumOf { key -> if (hay.contains(key)) 3 else 0 }
+            score to row
+        }.sortedByDescending { it.first }
+        val strong = scored.filter { it.first > 0 }.map { it.second }
+        if (strong.isEmpty()) return results
+        val weak = scored.filter { it.first == 0 }.map { it.second }
+        return strong + weak
     }
 
     private fun fetchAndReturnToMain(urlString: String, isSearch: Boolean = false, skipRoulette: Boolean = true, searchKeyword: String = "", isAtmosphere: Boolean = false) {
@@ -407,6 +542,7 @@ class SettingsActivity : AppCompatActivity() {
                     var title = ""
                     var author = ""
 
+                    val preservedPlaceKeys = if (isAtmosphere) atmospherePlaceKeys else emptyList()
                     AppSharedState.clear()
 
                     if (response.trim().startsWith("[")) {
@@ -426,15 +562,27 @@ class SettingsActivity : AppCompatActivity() {
                                 AppSharedState.isFiltering = true
                                 AppSharedState.currentSearchText = searchKeyword
                                 AppSharedState.filteredFortunes = tempList.toList()
+                                val randomItem = tempList.random()
+                                quote = randomItem["quote"] ?: ""
+                                title = randomItem["title"] ?: ""
+                                author = randomItem["author"] ?: ""
                             } else if (isAtmosphere) {
+                                val ranked = preferPlaceMatches(tempList, preservedPlaceKeys)
                                 AppSharedState.isAtmosphereMode = true
                                 AppSharedState.currentAtmosphereKeywords = searchKeyword
-                                AppSharedState.atmosphereFortunes = tempList.toList()
+                                AppSharedState.atmospherePlaceKeywords = preservedPlaceKeys
+                                AppSharedState.atmosphereFortunes = ranked
+                                val boost = minOf(ranked.size, maxOf(8, ranked.size / 3))
+                                val randomItem = ranked.take(boost).randomOrNull() ?: ranked.random()
+                                quote = randomItem["quote"] ?: ""
+                                title = randomItem["title"] ?: ""
+                                author = randomItem["author"] ?: ""
+                            } else {
+                                val randomItem = tempList.random()
+                                quote = randomItem["quote"] ?: ""
+                                title = randomItem["title"] ?: ""
+                                author = randomItem["author"] ?: ""
                             }
-                            val randomItem = tempList.random()
-                            quote = randomItem["quote"] ?: ""
-                            title = randomItem["title"] ?: ""
-                            author = randomItem["author"] ?: ""
                         }
                     } else if (response.trim().startsWith("{")) {
                         val obj = JSONObject(response)

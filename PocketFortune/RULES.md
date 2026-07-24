@@ -26,5 +26,7 @@ Swift側でAPIから取得した名言データやテーマの変更は、`evalu
 ## 5. バックエンド・データ管理仕様
 Swift側で各種データを一元管理している。
 * **名言の取得:** `QuoteDatabase` クラスが `https://lagado.jp/fragments/api.php` と通信し、通常モード（ランダム）、検索モード、気配（Atmosphere）モードのデータを管理する。
+* **気配（全世界・場所優先）:** `AtmosphereManager` が GPS → 逆ジオコード（国・都市）→ Open-Meteo。`PlaceLiteraryLexicon` で国 ISO から文学寄り英語地名を先頭に厚く積み、季節・時間・天候は後ろ。表示も国・都市を先に出す。API `action=atmosphere` は quote **および** author/title を検索し、場所ヒットをスコア優先。クライアントでも `atmospherePlaceKeywords` で再ソートして抽選する。
+* **サーバー反映:** `FragmentsApp/deploy/api.php` をロリポップの `lagado.jp/fragments/api.php` に上書きアップロードすること（アプリ側だけ更新してもサーバが旧のままなら場所ヒットが増えない）。
 * **お気に入り・履歴:** `QuoteStorage` クラスが `UserDefaults` を用いて端末内に保存する。
 * **多言語対応とAI解説:** `LanguageManager` や `ExplanationView` では、サーバー経由で Gemini API (`gemini-3.1-flash-lite`) を呼び出して翻訳やAI解説を生成している。
