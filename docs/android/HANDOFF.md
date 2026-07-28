@@ -1,9 +1,10 @@
 # Literary Fragments（FragmentsApp）Android — 新スレッド引き継ぎ仕様
 
 > **誰向け:** 新 Cursor チャットで Android 版を進める AI / 淡島様  
-> **更新:** 2026-07-24  
+> **更新:** 2026-07-28（Xcode 突合）  
 > **制作:** Lagado Research Institute  
-> **進捗正本:** 同フォルダの [`PROGRESS.md`](PROGRESS.md)（Abomon 同型の％ボード）
+> **進捗正本:** 同フォルダの [`PROGRESS.md`](PROGRESS.md)（Abomon 同型の％ボード）  
+> **iOS 正本:** [`../ios/STATUS.md`](../ios/STATUS.md)（Xcode 読み取り）
 
 ---
 
@@ -11,9 +12,9 @@
 
 ```
 Literary Fragments（FragmentsApp）の Android 版を続ける。
-ゼロから作らない。正本は FragmentsApp/docs/android/PROGRESS.md（いま完了42%）。
-次は A1 assembleDebug → A2 実機 → D Play Billing。
+ゼロから作らない。正本は FragmentsApp/docs/android/PROGRESS.md（いま完了80% · 次は F 提出）。
 引き継ぎ仕様: FragmentsApp/docs/android/HANDOFF.md を先に読む。
+iOS 版は docs/ios/STATUS.md（Xcode 1.0.5 / Build 6）。
 Abomon の Android 課金は型の参考のみ（別アプリ・別 ID）。
 ```
 
@@ -228,6 +229,7 @@ Release / AAB は Play 提出時。署名キーはユーザー管理（コミッ
 |----------|------|
 | [`PROGRESS.md`](PROGRESS.md) | ％ボード · 毎回更新 |
 | [`BILLING.md`](BILLING.md) | Play Billing · 製品 ID · テスト手順 |
+| [`../ios/STATUS.md`](../ios/STATUS.md) | iOS Xcode 正本（版・Bundle・Team） |
 | [`../RELEASE_VERIFICATION.md`](../RELEASE_VERIFICATION.md) | 検証テンプレ |
 | `FragmentsApp/PocketFortune/RULES.md` | iOS／API 仕様メモ（気配の場所優先追記あり） |
 | Obsidian `メモリ/プロジェクト/Literary Fragments.md` | チャット横断の進捗 1 行ログ |
