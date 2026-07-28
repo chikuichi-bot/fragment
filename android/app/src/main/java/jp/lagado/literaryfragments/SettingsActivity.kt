@@ -10,6 +10,7 @@ import android.graphics.drawable.GradientDrawable
 import android.location.Geocoder
 import android.location.Location
 import android.location.LocationManager
+import android.net.Uri
 import android.os.Bundle
 import android.view.KeyEvent
 import android.view.MotionEvent
@@ -76,6 +77,15 @@ class SettingsActivity : AppCompatActivity() {
 
         findViewById<LinearLayout>(R.id.cardTicket).setOnClickListener {
             startActivity(Intent(this, TicketStoreActivity::class.java))
+        }
+
+        findViewById<LinearLayout>(R.id.cardPrivacy).setOnClickListener {
+            startActivity(
+                Intent(
+                    Intent.ACTION_VIEW,
+                    Uri.parse("https://lagado.jp/fragments/privacy-android.php")
+                )
+            )
         }
 
         findViewById<LinearLayout>(R.id.btnDrawRandom).setOnClickListener {
@@ -422,7 +432,7 @@ class SettingsActivity : AppCompatActivity() {
             findViewById<LinearLayout>(R.id.mainBackground)?.setBackgroundColor(bgColor)
             findViewById<LinearLayout>(R.id.headerBackground)?.setBackgroundColor(cardColor)
 
-            val cards = listOf(R.id.cardDraw, R.id.cardSearch, R.id.cardAi, R.id.cardTicket)
+            val cards = listOf(R.id.cardDraw, R.id.cardSearch, R.id.cardAi, R.id.cardTicket, R.id.cardPrivacy)
             for (id in cards) {
                 findViewById<LinearLayout>(id)?.apply {
                     background = GradientDrawable().apply { setColor(cardColor); cornerRadius = 28f } // 洗練された角丸

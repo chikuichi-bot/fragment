@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Fragments アイコンスタジオ · ふ</title>
+  <style>
+    :root {
+      --bg: #1a1814;
+      --panel: #242018;
+      --ink: #f3ead7;
+      --muted: #9a8f7c;
+      --line: #3d362c;
+      --accent: #c4a574;
+      --accent2: #6b8cca;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif;
+      background: radial-gradient(1200px 600px at 20% -10%, #2c261c, var(--bg));
+      color: var(--ink);
+      min-height: 100vh;
+    }
+    header {
+      padding: 28px 24px 8px;
+      text-align: center;
+    }
+    header h1 {
+      font-weight: 400;
+      font-size: 1.55rem;
+      letter-spacing: 0.08em;
+      margin: 0 0 8px;
+    }
+    header p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(280px, 1fr) minmax(320px, 420px);
+      gap: 20px;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 16px 20px 48px;
+    }
+    @media (max-width: 860px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .card h2 {
+      margin: 0 0 14px;
+      font-size: 1rem;
+      font-weight: 400;
+      color: var(--accent);
+      letter-spacing: 0.06em;
+    }
+    .preview-wrap {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+    }
+    .home-mock {
+      width: 220px;
+      padding: 18px 16px 14px;
+      border-radius: 28px;
+      background: linear-gradient(160deg, #3a342a, #1e1a15);
+      border: 1px solid #4a4236;
+      box-shadow: 0 18px 40px rgba(0,0,0,0.35);
+    }
+    .home-mock .icons {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px 8px;
+      justify-items: center;
+    }
+    .home-mock .slot {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      background: #4a443a;
+      opacity: 0.35;
+    }
+    .home-mock .slot.target {
+      opacity: 1;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    }
+    .home-mock .slot.target canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .home-mock .label {
+      margin-top: 6px;
+      font-size: 10px;
+      text-align: center;
+      color: #ddd3c0;
+      font-family: -apple-system, sans-serif;
+      letter-spacing: 0.02em;
+    }
+    #stage {
+      width: min(100%, 360px);
+      aspect-ratio: 1;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 40px rgba(0,0,0,0.4);
+      background: #000;
+    }
+    .row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .row label {
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .row output {
+      font-variant-numeric: tabular-nums;
+      font-size: 0.82rem;
+      color: var(--accent);
+      min-width: 3.2em;
+      text-align: right;
+    }
+    input[type="range"] { width: 100%; accent-color: var(--accent); }
+    input[type="color"] {
+      width: 100%;
+      height: 36px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: transparent;
+      padding: 0;
+    }
+    select, input[type="text"] {
+      width: 100%;
+      background: #1a1712;
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 10px;
+      font-family: inherit;
+    }
+    .presets {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-bottom: 14px;
+    }
+    .presets button, .actions button {
+      font-family: inherit;
+      border-radius: 999px;
+      border: 1px solid var(--line);
+      background: #1a1712;
+      color: var(--ink);
+      padding: 8px 14px;
+      cursor: pointer;
+      font-size: 0.85rem;
+    }
+    .presets button:hover, .actions button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .actions {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .actions .primary {
+      background: var(--accent2);
+      border-color: var(--accent2);
+      color: #fff;
+      font-weight: 600;
+      padding: 14px;
+      border-radius: 12px;
+    }
+    .actions .secondary {
+      background: #2a241c;
+    }
+    .hint {
+      margin-top: 12px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+    code { font-family: ui-monospace, monospace; font-size: 0.85em; color: #d8c7a4; }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Fragments · 「ふ」アイコンスタジオ</h1>
+    <p>ひらがな「ふ」を崩して、ホーム画面用 1024² PNG を作れます（ローカル専用）</p>
+  </header>
+
+  <div class="layout">
+    <section class="card preview-wrap">
+      <h2 style="align-self:stretch">プレビュー</h2>
+      <canvas id="stage" width="1024" height="1024" aria-label="アイコンプレビュー"></canvas>
+      <div class="home-mock" aria-hidden="true">
+        <div class="icons">
+          <div class="slot"></div>
+          <div class="slot"></div>
+          <div class="slot target"><canvas id="homeIcon" width="132" height="132"></canvas></div>
+          <div class="slot"></div>
+        </div>
+        <div class="label">Fragments</div>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>崩し・調整</h2>
+      <div class="presets" id="presets"></div>
+
+      <div class="row"><label>文字</label><input type="text" id="glyph" value="ふ" maxlength="2" /></div>
+      <div class="row"><label>背景色</label><input type="color" id="bg" value="#b8b0a4" /></div>
+      <div class="row"><label>文字色</label><input type="color" id="fg" value="#ffffff" /></div>
+      <div class="row"><label>大きさ</label><input type="range" id="size" min="180" max="520" value="340" /><output id="sizeOut"></output></div>
+      <div class="row"><label>上下位置</label><input type="range" id="nudgeY" min="-120" max="120" value="12" /><output id="nudgeYOut"></output></div>
+      <div class="row"><label>左右位置</label><input type="range" id="nudgeX" min="-120" max="120" value="0" /><output id="nudgeXOut"></output></div>
+      <div class="row"><label>回転 (°)</label><input type="range" id="rot" min="-25" max="25" value="-4" /><output id="rotOut"></output></div>
+      <div class="row"><label>傾き（シア）</label><input type="range" id="shear" min="-40" max="40" value="8" /><output id="shearOut"></output></div>
+      <div class="row"><label>波打ち</label><input type="range" id="wave" min="0" max="40" value="10" /><output id="waveOut"></output></div>
+      <div class="row"><label>縦つぶれ</label><input type="range" id="squashY" min="60" max="120" value="92" /><output id="squashYOut"></output></div>
+      <div class="row"><label>横のび</label><input type="range" id="squashX" min="70" max="130" value="108" /><output id="squashXOut"></output></div>
+      <div class="row"><label>欠け（抜け）</label><input type="range" id="chip" min="0" max="40" value="6" /><output id="chipOut"></output></div>
+      <div class="row"><label>にじみ</label><input type="range" id="blur" min="0" max="8" value="0" step="0.5" /><output id="blurOut"></output></div>
+      <div class="row">
+        <label>書体</label>
+        <select id="font">
+          <option value='"Hiragino Mincho ProN", "Yu Mincho", "Noto Serif JP", serif'>明朝</option>
+          <option value='"Hiragino Sans", "Yu Gothic", "Noto Sans JP", sans-serif'>ゴシック</option>
+          <option value='"Hiragino Maru Gothic ProN", "Yu Gothic", sans-serif'>丸ゴシック</option>
+        </select>
+      </div>
+      <div class="row">
+        <label>ウェイト</label>
+        <select id="weight">
+          <option value="300">細い</option>
+          <option value="400" selected>標準</option>
+          <option value="600">やや太い</option>
+          <option value="800">太い</option>
+        </select>
+      </div>
+
+      <div class="actions">
+        <button class="primary" id="btnDownload" type="button">icon-fu-1024.png をダウンロード</button>
+        <button class="secondary" id="btnCopyPath" type="button">反映先パスをコピー</button>
+      </div>
+      <p class="hint">
+        気に入ったら PNG を保存し、次を差し替えてください。<br />
+        iOS: <code>PocketFortune/Media.xcassets/AppIcon.appiconset/icon-3.png</code><br />
+        Android: Studio で Image Asset へ、または <code>起動.command</code> 同梱の反映スクリプト<br />
+        Finder から <code>FragmentsApp/icon-studio/起動.command</code> で起動できます。
+      </p>
+    </section>
+  </div>
+
+  <script>
+    const stage = document.getElementById('stage');
+    const homeIcon = document.getElementById('homeIcon');
+    const ctx = stage.getContext('2d');
+    const hctx = homeIcon.getContext('2d');
+
+    const els = {
+      glyph: document.getElementById('glyph'),
+      bg: document.getElementById('bg'),
+      fg: document.getElementById('fg'),
+      size: document.getElementById('size'),
+      nudgeY: document.getElementById('nudgeY'),
+      nudgeX: document.getElementById('nudgeX'),
+      rot: document.getElementById('rot'),
+      shear: document.getElementById('shear'),
+      wave: document.getElementById('wave'),
+      squashY: document.getElementById('squashY'),
+      squashX: document.getElementById('squashX'),
+      chip: document.getElementById('chip'),
+      blur: document.getElementById('blur'),
+      font: document.getElementById('font'),
+      weight: document.getElementById('weight'),
+    };
+
+    const outs = {
+      size: document.getElementById('sizeOut'),
+      nudgeY: document.getElementById('nudgeYOut'),
+      nudgeX: document.getElementById('nudgeXOut'),
+      rot: document.getElementById('rotOut'),
+      shear: document.getElementById('shearOut'),
+      wave: document.getElementById('waveOut'),
+      squashY: document.getElementById('squashYOut'),
+      squashX: document.getElementById('squashXOut'),
+      chip: document.getElementById('chipOut'),
+      blur: document.getElementById('blurOut'),
+    };
+
+    const PRESETS = [
+      {
+        name: '崩しA · 傾き',
+        values: { size: 340, nudgeY: 12, nudgeX: -8, rot: -7, shear: 14, wave: 8, squashY: 90, squashX: 112, chip: 4, blur: 0, weight: '400' }
+      },
+      {
+        name: '崩しB · 欠け',
+        values: { size: 360, nudgeY: 8, nudgeX: 4, rot: 3, shear: -6, wave: 16, squashY: 96, squashX: 104, chip: 18, blur: 0.5, weight: '600' }
+      },
+      {
+        name: '崩しC · 墨にじみ',
+        values: { size: 320, nudgeY: 16, nudgeX: 0, rot: -2, shear: 4, wave: 4, squashY: 88, squashX: 110, chip: 2, blur: 3, weight: '800' }
+      },
+      {
+        name: '静か · ほぼ正調',
+        values: { size: 330, nudgeY: 10, nudgeX: 0, rot: 0, shear: 0, wave: 0, squashY: 100, squashX: 100, chip: 0, blur: 0, weight: '400' }
+      },
+    ];
+
+    function syncOutputs() {
+      outs.size.textContent = els.size.value;
+      outs.nudgeY.textContent = els.nudgeY.value;
+      outs.nudgeX.textContent = els.nudgeX.value;
+      outs.rot.textContent = els.rot.value;
+      outs.shear.textContent = els.shear.value;
+      outs.wave.textContent = els.wave.value;
+      outs.squashY.textContent = els.squashY.value + '%';
+      outs.squashX.textContent = els.squashX.value + '%';
+      outs.chip.textContent = els.chip.value;
+      outs.blur.textContent = els.blur.value;
+    }
+
+    function applyPreset(p) {
+      Object.entries(p.values).forEach(([k, v]) => {
+        if (els[k]) els[k].value = v;
+      });
+      render();
+    }
+
+    function drawGlyphLayer(target, size) {
+      const g = document.createElement('canvas');
+      g.width = size;
+      g.height = size;
+      const gctx = g.getContext('2d');
+      const glyph = (els.glyph.value || 'ふ').slice(0, 2);
+      const fontSize = Number(els.size.value) * (size / 1024);
+      const nudgeX = Number(els.nudgeX.value) * (size / 1024);
+      const nudgeY = Number(els.nudgeY.value) * (size / 1024);
+      const rot = (Number(els.rot.value) * Math.PI) / 180;
+      const shear = Number(els.shear.value) / 100;
+      const sx = Number(els.squashX.value) / 100;
+      const sy = Number(els.squashY.value) / 100;
+      const blur = Number(els.blur.value) * (size / 1024);
+
+      gctx.clearRect(0, 0, size, size);
+      gctx.save();
+      gctx.translate(size / 2 + nudgeX, size / 2 + nudgeY);
+      gctx.rotate(rot);
+      gctx.transform(sx, 0, shear, sy, 0, 0);
+      gctx.font = `${els.weight.value} ${fontSize}px ${els.font.value}`;
+      gctx.textAlign = 'center';
+      gctx.textBaseline = 'middle';
+      gctx.fillStyle = els.fg.value;
+      if (blur > 0) gctx.filter = `blur(${blur}px)`;
+      gctx.fillText(glyph, 0, 0);
+      gctx.restore();
+
+      // wave warp
+      const wave = Number(els.wave.value);
+      if (wave > 0) {
+        const src = gctx.getImageData(0, 0, size, size);
+        const dst = gctx.createImageData(size, size);
+        const amp = wave * (size / 1024);
+        for (let y = 0; y < size; y++) {
+          const shift = Math.round(Math.sin((y / size) * Math.PI * 3) * amp);
+          for (let x = 0; x < size; x++) {
+            const sx2 = Math.min(size - 1, Math.max(0, x - shift));
+            const si = (y * size + sx2) * 4;
+            const di = (y * size + x) * 4;
+            dst.data[di] = src.data[si];
+            dst.data[di + 1] = src.data[si + 1];
+            dst.data[di + 2] = src.data[si + 2];
+            dst.data[di + 3] = src.data[si + 3];
+          }
+        }
+        gctx.putImageData(dst, 0, 0);
+      }
+
+      // chip / 欠け — punch random soft holes near edges of glyph alpha
+      const chip = Number(els.chip.value);
+      if (chip > 0) {
+        const img = gctx.getImageData(0, 0, size, size);
+        const n = Math.floor(chip * 8 * (size / 1024));
+        // deterministic-ish holes based on chip
+        let seed = chip * 9973 + 13;
+        const rand = () => {
+          seed = (seed * 16807) % 2147483647;
+          return (seed - 1) / 2147483646;
+        };
+        for (let i = 0; i < n; i++) {
+          const cx = Math.floor(rand() * size);
+          const cy = Math.floor(rand() * size);
+          const r = Math.max(2, Math.floor((4 + rand() * 18) * (size / 1024)));
+          for (let y = cy - r; y <= cy + r; y++) {
+            for (let x = cx - r; x <= cx + r; x++) {
+              if (x < 0 || y < 0 || x >= size || y >= size) continue;
+              const d = (x - cx) * (x - cx) + (y - cy) * (y - cy);
+              if (d > r * r) continue;
+              const idx = (y * size + x) * 4;
+              if (img.data[idx + 3] > 20) {
+                const fade = 1 - Math.sqrt(d) / r;
+                img.data[idx + 3] = Math.floor(img.data[idx + 3] * (1 - fade * 0.95));
+              }
+            }
+          }
+        }
+        gctx.putImageData(img, 0, 0);
+      }
+
+      target.drawImage(g, 0, 0);
+    }
+
+    function render() {
+      syncOutputs();
+      const bg = els.bg.value;
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 1024, 1024);
+      drawGlyphLayer(ctx, 1024);
+
+      hctx.fillStyle = bg;
+      hctx.fillRect(0, 0, 132, 132);
+      // scale stage into home icon
+      hctx.drawImage(stage, 0, 0, 132, 132);
+    }
+
+    Object.values(els).forEach((el) => {
+      el.addEventListener('input', render);
+      el.addEventListener('change', render);
+    });
+
+    const presetsEl = document.getElementById('presets');
+    PRESETS.forEach((p) => {
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = p.name;
+      b.addEventListener('click', () => applyPreset(p));
+      presetsEl.appendChild(b);
+    });
+
+    document.getElementById('btnDownload').addEventListener('click', () => {
+      render();
+      const a = document.createElement('a');
+      a.download = 'icon-fu-1024.png';
+      a.href = stage.toDataURL('image/png');
+      a.click();
+    });
+
+    document.getElementById('btnCopyPath').addEventListener('click', async () => {
+      const text = `iOS: FragmentsApp/PocketFortune/Media.xcassets/AppIcon.appiconset/icon-3.png\nAndroid: Image Asset で ic_launcher を差し替え\n書き出し: FragmentsApp/icon-studio/exports/`;
+      try {
+        await navigator.clipboard.writeText(text);
+        alert('反映先パスをコピーしました');
+      } catch {
+        prompt('コピーしてください', text);
+      }
+    });
+
+    // wait fonts
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(render);
+    } else {
+      render();
+    }
+    applyPreset(PRESETS[0]);
+  </script>
+</body>
+</html>

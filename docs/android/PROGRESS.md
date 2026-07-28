@@ -1,19 +1,19 @@
 # Literary Fragments Android — 進捗ボード
 
-> **完了 66% · 残り 34%**  
-> 次: **D1** Play Console アプリ枠 + チケット製品 → **D4** クローズド課金  
-> 更新: 2026-07-24  
+> **完了 80% · 残り 20%**  
+> 次: **F** QA・ストア提出（F1 もう1台 · F2 残り · F3 本番）  
+> 更新: 2026-07-26  
 > 前提: iOS は App Store 提出進行中（1.0.3）· Android は Kotlin ネイティブ（WebView 殻ではない）· API は `lagado.jp/fragments/` 共通 · 課金コードは Play Billing 8.3.0（Debug は開発付与）
 
 ```
-Fragments Android · 完了 66% · 残り 34%
-いま: A 完了 · D2/D3 済 · 次: D1 Console → D4
+Fragments Android · 完了 80% · 残り 20%
+いま: A/B/C/D 完了 · 次: F 提出
 ```
 
 ### Play Console（枠）
 
-- [ ] アプリ作成 **Literary Fragments** · `jp.lagado.literaryfragments` · 未作成想定
-- [ ] 課金商品 D1 · AAB / 公開は **F**
+- [x] アプリ作成 **Literary Fragments** · `jp.lagado.literaryfragments`
+- [x] 課金商品 D1（ticket100 / 1000 / 10000）· Alpha **2 (1.0.1)** クローズド公開済 · 本番公開は **F**
 
 ### ビルドメモ
 
@@ -30,7 +30,7 @@ cd FragmentsApp/android
 | | iOS | Android |
 |--|-----|---------|
 | Bundle / ID | `jp.lagado.pocketfortune`（表示 Fragments） | `jp.lagado.literaryfragments` |
-| チケット IAP | StoreKit · `jp.lagado.literaryfragments.ticket*` | Billing 8.3.0 · 同 ID（D1 Console 待ち） |
+| チケット IAP | StoreKit · `jp.lagado.literaryfragments.ticket*` | Billing 8.3.0 · 同 ID（D1–D4 済） |
 | 気配・場所 | `PlaceLiteraryLexicon` + GPS | 同型（コード済） |
 | API | `api.php` / `gemini.php` | 同じ URL |
 
@@ -42,10 +42,10 @@ cd FragmentsApp/android
 |----------|------|------|------|
 | A 殻・起動 | 12 | 12 | ビルド＋実機＋コア1周 済 |
 | B コア体験 | 28 | 28 | コード完了 · 実機確認済 |
-| C 仕上げ・気配 | 15 | 11 | 場所優先済 · 殻の細部残り |
-| D Play Billing | 25 | 15 | D2/D3 コード済 · D1/D4 待ち |
-| F QA·提出 | 20 | 0 | — |
-| **合計** | **100** | **66** | |
+| C 仕上げ・気配 | 15 | 15 | C1–C5 済 · DISPLAY.md |
+| D Play Billing | 25 | 25 | D1–D4 済 · クローズド実機課金 OK |
+| F QA·提出 | 20 | 0 | 素材・プライバシー着手 · 本番は未 |
+| **合計** | **100** | **80** | |
 
 ---
 
@@ -73,27 +73,27 @@ cd FragmentsApp/android
 
 - [x] **C1** 位置情報権限 + 実 GPS（気配）（5）· 京都固定を解除済み · 2026-07-14
 - [x] **C2** 場所レキシコン（国 ISO → 文学語）（3）· iOS 同型
-- [ ] **C3** 戻るキー / スワイプ閉じの端末差確認（3）
-- [ ] **C4** テーマ・ノッチ・文言の iOS parity メモ 1 枚（2）· `DISPLAY.md` 予定
-- [ ] **C5** サーバ `api.php` 気配（場所スコア）本番反映確認（2）· `deploy/api.php` をロリポップへ
+- [x] **C3** 戻るキー / スワイプ閉じの端末差確認（3）· 2026-07-26 · SH-03K · BACK: TicketStore→Settings→Main · 4画面に上端スワイプ閉じ実装済
+- [x] **C4** テーマ・ノッチ・文言の iOS parity メモ 1 枚（2）· [`DISPLAY.md`](DISPLAY.md) · 2026-07-26
+- [x] **C5** サーバ `api.php` 気配（場所スコア）本番反映確認（2）· 2026-07-26 · `action=atmosphere&keywords=Kyoto` → 21/21 ヒット（title/author 含む）
 
-> 取得: **11 / 15**
+> 取得: **15 / 15**
 
 ## D · Play Billing（25）
 
-- [ ] **D1** Play Console アプリ枠 + 製品（ticket100 / 1000 / 10000 · iOS ID に合わせる）（5）
+- [x] **D1** Play Console アプリ枠 + 製品（ticket100 / 1000 / 10000 · iOS ID に合わせる）（5）· 2026-07-26 · Alpha **2 (1.0.1)** 公開
 - [x] **D2** Billing Library（8.3.0）+ 購入フロー（シミュ撤去）（10）· `TicketLicenseManager` · 2026-07-24
 - [x] **D3** 台帳冪等（purchaseToken）· 無料日次と有料の分離（5）· 2026-07-24
-- [ ] **D4** クローズドテスト実機課金（5）
+- [x] **D4** クローズドテスト実機課金（5）· 2026-07-26 · SH-03K · Play 版で購入成功
 
-> 取得: **15 / 25**  
+> 取得: **25 / 25**  
 > 詳細: [`BILLING.md`](BILLING.md)
 
 ## F · QA・提出（20）
 
 - [ ] **F1** 端末ざっくり（SH-03K + もう1台）（5）
-- [ ] **F2** ストア素材・データセーフティ・プライバシー URL（7）
-- [ ] **F3** 内部／クローズド → 本番公開（8）
+- [ ] **F2** ストア素材・データセーフティ・プライバシー URL（7）· 正本 `deploy/privacy-android.php` · URL `https://lagado.jp/fragments/privacy-android.php`（反映済想定 · Console 項目は一部済）
+- [ ] **F3** 内部／クローズド → 本番公開（8）· Alpha クローズドは済 · 本番トラックは未
 
 > 取得: **0 / 20**
 
@@ -109,6 +109,7 @@ cd FragmentsApp/android
 
 - [HANDOFF.md](HANDOFF.md)
 - [BILLING.md](BILLING.md)
+- [DISPLAY.md](DISPLAY.md)
 - [RELEASE_VERIFICATION.md](../RELEASE_VERIFICATION.md)
 - `FragmentsApp/android/`
 - `FragmentsApp/deploy/api.php`（ロリポップ反映）

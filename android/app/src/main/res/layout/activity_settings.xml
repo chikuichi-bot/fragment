@@ -117,7 +117,34 @@
                         <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="所有チケット" android:textColor="#333333"/>
                         <TextView android:id="@+id/textPaidTickets" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 枚" android:textStyle="bold" android:textColor="#333333"/>
                     </LinearLayout>
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="🎟 ストアへ行く" android:textColor="#007AFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ストアへ行く ›" android:textColor="#007AFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/cardPrivacy"
+                    android:layout_width="match_parent"
+                    android:layout_height="50dp"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:paddingHorizontal="16dp"
+                    android:layout_marginBottom="24dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:background="?attr/selectableItemBackground">
+                    <TextView
+                        android:id="@+id/textPrivacy"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="プライバシーポリシー"
+                        android:textColor="#333333"
+                        android:textSize="16sp"/>
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="↗"
+                        android:textColor="#9E9E9E"
+                        android:textSize="16sp"/>
                 </LinearLayout>
             </LinearLayout>
         </ScrollView>

@@ -1378,13 +1378,13 @@ struct SettingsView: View {
                             }
                         }
                         NavigationLink(destination: TicketStoreView(langManager: langManager)) {
-                            Text("🎟 \(ui.buyButton)").foregroundColor(.blue).fontWeight(.bold)
+                            Text("\(ui.buyButton) ›").foregroundColor(.blue).fontWeight(.bold)
                         }
                     }
                     
                     // 8. プライバシーポリシー
                     Section {
-                        if let url = URL(string: "https://lagado.jp/fragments/privacy/") {
+                        if let url = URL(string: "https://lagado.jp/fragments/privacy.php") {
                             Link(destination: url) {
                                 HStack {
                                     Text(isJapanese ? "プライバシーポリシー" : "Privacy Policy")
@@ -2329,7 +2329,8 @@ struct WebView: UIViewRepresentable {
                         self.parent.showNativeTranslation = true
                     }
                 }
-            case "requestNextQuote":
+            case "requestNextQuote", "requestPreviousQuote":
+                // 左右スワイプとも新しいランダム（履歴めくりはしない）
                 if !self.isReadyToSwipe { return }
                 if self.isSpinning { return }
                 
@@ -2353,22 +2354,6 @@ struct WebView: UIViewRepresentable {
                         self.quoteHistory.append(dict)
                         self.currentHistoryIndex = self.quoteHistory.count - 1
                         self.startRoulette(finalDict: dict)
-                    }
-                }
-            case "requestPreviousQuote":
-                if !self.isReadyToSwipe { return }
-                if self.isSpinning { return }
-                
-                DispatchQueue.main.async {
-                    self.lightHaptic.impactOccurred()
-                }
-                clearSpeechQueue()
-                if currentHistoryIndex > 0 {
-                    currentHistoryIndex -= 1
-                    sendQuoteToJS(dict: quoteHistory[currentHistoryIndex])
-                } else {
-                    DispatchQueue.main.async {
-                        self.rigidHaptic.impactOccurred()
                     }
                 }
             case "showSettings":

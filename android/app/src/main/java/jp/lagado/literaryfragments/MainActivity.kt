@@ -337,14 +337,7 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
                     if (isSpinning) return@runOnUiThread
                     stopSpeaking()
 
-                    if (currentHistoryIndex < quoteHistory.size - 1) {
-                        currentHistoryIndex++
-                        val nextQuote = quoteHistory[currentHistoryIndex]
-                        QuoteStorage.addHistory(context, nextQuote)
-                        startRoulette(nextQuote)
-                        return@runOnUiThread
-                    }
-
+                    // 左右どちらも新規ランダム（履歴の「進む」はしない）
                     isSpinning = true
                     Thread {
                         try {
@@ -424,39 +417,8 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         @JavascriptInterface
         fun requestPreviousQuote(payload: String?) {
-            runOnUiThread {
-                try {
-                    if (isSpinning) return@runOnUiThread
-                    stopSpeaking()
-
-                    if (currentHistoryIndex > 0) {
-                        currentHistoryIndex--
-                        val prevQuote = quoteHistory[currentHistoryIndex]
-                        QuoteStorage.addHistory(context, prevQuote)
-
-                        vibrate(30L)
-
-                        val escapedQuote = escapeJS(prevQuote.text)
-                        val escapedTitle = escapeJS(prevQuote.title)
-                        val escapedAuthor = escapeJS(prevQuote.author)
-                        val escapedKeyword = escapeJS(currentSearchKeyword)
-
-                        val js = """
-                            try {
-                                if(window.setSearchKeyword) { window.setSearchKeyword('$escapedKeyword'); }
-                                var display = document.getElementById('quote-text');
-                                var sourceArea = document.getElementById('source-area');
-                                if (display) { display.style.transition = ''; display.style.opacity = ''; }
-                                if (sourceArea) { sourceArea.style.transition = ''; sourceArea.style.opacity = ''; }
-                                if(window.displayQuoteWithFade) { window.displayQuoteWithFade('$escapedQuote', '$escapedTitle', '$escapedAuthor'); }
-                            } catch(e) {}
-                        """.trimIndent()
-                        webView.evaluateJavascript(js, null)
-                    } else {
-                        vibrate(50L)
-                    }
-                } catch (e: Exception) { e.printStackTrace() }
-            }
+            // 左右スワイプともランダム → Next と同じ
+            requestNextQuote(payload)
         }
 
         private fun startRoulette(quoteData: QuoteData) {

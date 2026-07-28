@@ -273,6 +273,12 @@ class TicketStoreActivity : AppCompatActivity() {
             setPadding(8, 0, 0, 0)
         })
         leftInfo.addView(titleContainer)
+        leftInfo.addView(TextView(this).apply {
+            text = "AI解説を読むためのチケットです。"
+            textSize = 12f
+            setTextColor(if (isDark) Color.parseColor("#9E9E9E") else Color.parseColor("#757575"))
+            setPadding(0, 4, 0, 0)
+        })
 
         val priceBtn = TextView(this).apply {
             text = price

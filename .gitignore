@@ -7,3 +7,9 @@ android/.kotlin/
 *.log
 deploy/gemini_secrets.php
 **/gemini_secrets.php
+
+# Android signing
+android/key.properties
+android/keystore/
+*.jks
+*.keystore

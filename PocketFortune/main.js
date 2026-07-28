@@ -221,14 +221,11 @@
             const diffX = e.changedTouches[0].screenX - startX;
             const diffY = e.changedTouches[0].screenY - startY;
             
-            if (Math.abs(diffX) > 50 && Math.abs(diffY) < 100) {
-                window.getSelection()?.removeAllRanges();
-                if (diffX < 0) {
-                    callNative('requestNextQuote');
-                } else {
-                    callNative('requestPreviousQuote');
-                }
-            }
+							if (Math.abs(diffX) > 50 && Math.abs(diffY) < 100) {
+							window.getSelection()?.removeAllRanges();
+							// 左右どちらも新しいランダム（履歴めくりはしない）
+							callNative('requestNextQuote');
+							}
         }, { passive: true });
     }
     

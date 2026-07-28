@@ -36,17 +36,17 @@ Abomon の Android 課金は型の参考のみ（別アプリ・別 ID）。
 ## 2. いまの到達点（事実）
 
 ```
-Fragments Android · 完了 66% · 残り 34%
-いま: A 完了 · D2/D3 済 · 次: D1 Console → D4
+Fragments Android · 完了 80% · 残り 20%
+いま: A/B/C/D 完了 · 次: F 提出
 ```
 
 | フェーズ | 重み | 取得 | 意味 |
 |----------|------|------|------|
 | A 殻・起動 | 12 | 12 | ビルド＋SH-03K＋コア1周 済 |
 | B コア体験 | 28 | 28 | 引く／検索／お気に入り／解説／気配の**コード済** |
-| C 仕上げ・気配 | 15 | 11 | 場所優先 GPS＋レキシコン済 · 細部残り |
-| D Play Billing | 25 | 15 | Billing 8.3.0 + 台帳済 · **Console / クローズド未** |
-| F QA·提出 | 20 | 0 | Play 未公開想定 |
+| C 仕上げ・気配 | 15 | 15 | C1–C5 済 · [`DISPLAY.md`](DISPLAY.md) |
+| D Play Billing | 25 | 25 | D1–D4 済 · **クローズド実機課金 OK** |
+| F QA·提出 | 20 | 0 | Alpha クローズド済 · 本番未 |
 
 詳細チェックリストは必ず `PROGRESS.md` を更新しながら進める。
 
@@ -104,10 +104,12 @@ Android UI の表示価格（いまハードコード）: ¥150 / ¥900 / ¥4,50
 |-----|------|
 | `https://lagado.jp/fragments/api.php` | `random` / `search` / `atmosphere` |
 | `https://lagado.jp/fragments/gemini.php` | AI 解説・翻訳 |
+| `https://lagado.jp/fragments/privacy.php` | プライバシー・サポート（iOS / 共通） |
+| `https://lagado.jp/fragments/privacy-android.php` | プライバシー・サポート（Android） |
 | `https://api.open-meteo.com/...` | 気配の天気 |
 
-`action=atmosphere` は **quote + author + title** を検索し、キーワード先頭（場所）を高スコアにする版が `deploy/api.php` にある。  
-**ロリポップ未反映だと場所ヒットが弱い。** 新スレ開始時に本番 API の挙動を一度確認すること。
+`action=atmosphere` は **quote + author + title** を検索し、キーワード先頭（場所）を高スコアにする版が本番稼働中（C5 · 2026-07-26 確認）。  
+正本: `deploy/api.php`
 
 ---
 
@@ -143,7 +145,7 @@ Android UI の表示価格（いまハードコード）: ¥150 / ¥900 / ¥4,50
 - `TicketLicenseManager` + Play Billing Library **8.3.0**（シミュ撤去済）
 - Debug: 開発付与。Release／Play 署名ビルドは本物課金のみ
 - 必須: `purchaseToken` 台帳で冪等 · finish 前に保存 · 無料枠と有料を分離
-- **残り:** D1 Play Console 製品 · D4 クローズド実機
+- **残り:** なし（D 完了）· 次は F / C 細部
 - 詳細: [`BILLING.md`](BILLING.md)
 - 参考正本（型）:  
   `OmikujiBunko_Master/AbomonGame/docs/android/BILLING.md`  
@@ -155,11 +157,10 @@ Android UI の表示価格（いまハードコード）: ¥150 / ¥900 / ¥4,50
 
 1. **この HANDOFF + PROGRESS を読む**（Abomon リポを開いても Fragments を触らない）
 2. **A1** — Studio JBR で `./gradlew assembleDebug`（済 · 2026-07-24）
-3. **A2–A3** 実機（済 · SH-03K）→ **D1** Play Console 製品 ← **いまここ**
+3. **A2–A3** 実機（済 · SH-03K）· **D1** Play Console 製品（済 · 2026-07-26 · Alpha 1.0.1）
 4. **C5** — `deploy/api.php` が本番に乗っているか確認（未ならロリポップへ）
-5. **D1** — Play Console にアプリ枠 + チケット 3 商品（iOS と同 ID）
-6. **D2–D3** — Billing 実装（済）→ **D4** クローズド実機課金
-7. **F** — データセーフティ・ストア素材・公開
+5. **D2–D3** — Billing 実装（済）→ **D4** クローズド実機課金（済 · 2026-07-26 · SH-03K）
+6. **C3–C5**（済 · 2026-07-26）· **F** — QA + データセーフティ・ストア素材・本番公開 ← **いまここ**
 
 進捗を進めたら必ず:
 
