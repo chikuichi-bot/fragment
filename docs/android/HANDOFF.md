@@ -85,8 +85,8 @@ Fragments Android · 完了 80% · 残り 20%
 | Android `applicationId` | `jp.lagado.literaryfragments` |
 | iOS Bundle（Xcode） | `jp.lagado.pocketfortune`（表示名 Fragments） |
 | 表示名 | Literary Fragments / Fragments |
-| Android `versionName` / `versionCode`（要確認） | `1.0` / `1`（`android/app/build.gradle.kts`） |
-| iOS 近況 | Marketing **1.0.3** · Build **4**（1.0.2 は承認済みで再提出不可だった） |
+| Android `versionName` / `versionCode` | `1.0.3` / `4`（`android/app/build.gradle.kts`） |
+| iOS 近況（Xcode 正本 · 2026-07-28） | Marketing **1.0.5** · Build **6**（`CURRENT_PROJECT_VERSION`）· Team `Q82QB32AZ8` · Deployment **26.4** · 暗号化申告 `ITSAppUsesNonExemptEncryption = NO` · App Store ID `6760742804` |
 
 ### 課金プロダクト ID（iOS と揃える・消耗型）
 
@@ -218,7 +218,7 @@ Release / AAB は Play 提出時。署名キーはユーザー管理（コミッ
 | `api.php` を上げずに場所優先を実機判定 | サーバ旧のままだと弱い。`deploy/api.php` 反映確認 |
 | Product ID を Android だけ変える | iOS と **同一 ID** を維持 |
 | デスクトップパスの NFC/NFD | Finder/シェルでパス不一致が出たら実パスを `ls` で確認 |
-| iOS `1.0.2` 再アップロード | 閉じた列車。Android 版とは無関係だが iOS は 1.0.3+ |
+| iOS 版番号の取り違え | ドキュメントの「1.0.3」は旧。Xcode 正本は **1.0.5 / Build 6**。1.0.2 再アップロードは閉じた列車 |
 
 ---
 

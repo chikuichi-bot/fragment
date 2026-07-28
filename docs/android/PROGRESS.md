@@ -2,8 +2,8 @@
 
 > **完了 80% · 残り 20%**  
 > 次: **F** QA・ストア提出（F1 もう1台 · F2 残り · F3 本番）  
-> 更新: 2026-07-26  
-> 前提: iOS は App Store 提出進行中（1.0.3）· Android は Kotlin ネイティブ（WebView 殻ではない）· API は `lagado.jp/fragments/` 共通 · 課金コードは Play Billing 8.3.0（Debug は開発付与）
+> 更新: 2026-07-28  
+> 前提: iOS は Xcode **1.0.5 / Build 6**（`jp.lagado.pocketfortune` · 表示 Fragments）· Android は Kotlin ネイティブ **1.0.3 / code 4** · API は `lagado.jp/fragments/` 共通 · 課金は StoreKit / Play Billing 8.3.0（Debug は開発付与）
 
 ```
 Fragments Android · 完了 80% · 残り 20%
@@ -30,9 +30,12 @@ cd FragmentsApp/android
 | | iOS | Android |
 |--|-----|---------|
 | Bundle / ID | `jp.lagado.pocketfortune`（表示 Fragments） | `jp.lagado.literaryfragments` |
+| 版 | **1.0.5** / Build **6**（Xcode · 2026-07-28） | **1.0.3** / versionCode **4** |
 | チケット IAP | StoreKit · `jp.lagado.literaryfragments.ticket*` | Billing 8.3.0 · 同 ID（D1–D4 済） |
 | 気配・場所 | `PlaceLiteraryLexicon` + GPS | 同型（コード済） |
+| 左右スワイプ | どちらも新規ランダム（履歴めくりなし） | 同型 |
 | API | `api.php` / `gemini.php` | 同じ URL |
+| プライバシー | `…/privacy.php` | `…/privacy-android.php` |
 
 ---
 

@@ -11,6 +11,7 @@
 JSからSwiftへ命令を送る際は、共通関数 `callSwift(handlerName, body)` を使用し、`window.webkit.messageHandlers[handlerName].postMessage` を経由する。
 Swift側の `ContentView.swift` では、以下の11個のハンドラ名を受信できるように登録されている。
 * `speakText`, `triggerHaptic`, `showSettings`, `showFavorites`, `explainQuote`, `stockQuote`, `unstockQuote`, `requestNextQuote`, `requestPreviousQuote`, `searchBook`, `showNativeTranslation`。
+* **左右スワイプ（2026-07-28）:** `requestNextQuote` / `requestPreviousQuote` はどちらも **新規ランダム**（履歴めくりはしない）。`main.js` も同仕様。
 
 ## 3. SwiftからJavaScriptへの通信 (Swift -> JS)
 Swift側でAPIから取得した名言データやテーマの変更は、`evaluateJavaScript` を用いて直接JSを実行することでHTML側に反映させる。

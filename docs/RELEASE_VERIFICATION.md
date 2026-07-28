@@ -15,13 +15,17 @@
 
 ### 1.1 プロジェクトに基づく署名・識別子（Xcode 突合用）
 
-| キー | 値（`project.pbxproj` より） |
+| キー | 値（`project.pbxproj` より · 2026-07-28 突合） |
 |------|------------------------------|
 | `CODE_SIGN_STYLE` | Automatic |
 | `DEVELOPMENT_TEAM` | `Q82QB32AZ8` |
 | `PRODUCT_BUNDLE_IDENTIFIER`（iphoneos） | `jp.lagado.pocketfortune` |
+| `MARKETING_VERSION` | **1.0.5** |
+| `CURRENT_PROJECT_VERSION` | **6** |
 | `IPHONEOS_DEPLOYMENT_TARGET` | **26.4**（実機・TestFlight はこの OS 以上が必要） |
+| `ITSAppUsesNonExemptEncryption` | **NO** |
 | 表示名 | `Fragments`（`INFOPLIST_KEY_CFBundleDisplayName`） |
+| App Store | ID `6760742804`（Pocket Fortune: Literary） |
 
 実機 / TestFlight では Xcode で **チーム** と **Signing Certificate** が有効か、App Store Connect の Bundle ID と一致するかを必ず確認してください。
 
