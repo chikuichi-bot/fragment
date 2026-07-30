@@ -1,0 +1,81 @@
+{
+  "identifier" : "A1B2C3D4",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "300",
+      "familyShareable" : false,
+      "internalID" : "FRAG100",
+      "localizations" : [
+        {
+          "description" : "AI解説を読むためのチケットです。",
+          "displayName" : "100枚",
+          "locale" : "ja"
+        },
+        {
+          "description" : "Tickets for AI explanations.",
+          "displayName" : "100 Tickets",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "jp.lagado.literaryfragments.ticket100",
+      "referenceName" : "ticket100",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "900",
+      "familyShareable" : false,
+      "internalID" : "FRAG500",
+      "localizations" : [
+        {
+          "description" : "AI解説を読むためのチケットです。",
+          "displayName" : "500枚",
+          "locale" : "ja"
+        },
+        {
+          "description" : "Tickets for AI explanations.",
+          "displayName" : "500 Tickets",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "jp.lagado.literaryfragments.ticket500",
+      "referenceName" : "ticket500",
+      "type" : "Consumable"
+    },
+    {
+      "displayPrice" : "1500",
+      "familyShareable" : false,
+      "internalID" : "FRAG1000",
+      "localizations" : [
+        {
+          "description" : "AI解説を読むためのチケットです。",
+          "displayName" : "1000枚",
+          "locale" : "ja"
+        },
+        {
+          "description" : "Tickets for AI explanations.",
+          "displayName" : "1000 Tickets",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "jp.lagado.literaryfragments.ticket1000",
+      "referenceName" : "ticket1000",
+      "type" : "Consumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

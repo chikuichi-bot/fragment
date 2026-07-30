@@ -88,12 +88,16 @@ class TicketLicenseManager(
         )
     }
 
+    /** Play 未取得時も iOS `fallbackPriceLabel` と同型で目安価格を出す */
     fun displayPrice(productId: String): String {
         cachedPrices[productId]?.let { return it }
-        if (BuildConfig.DEBUG) {
-            return DEBUG_PRICES[productId] ?: "—"
-        }
-        return "—"
+        return FALLBACK_PRICES[productId] ?: "—"
+    }
+
+    /** Debug は開発付与可。Release は Play の ProductDetails が取れたときだけ購入可 */
+    fun isProductAvailable(productId: String): Boolean {
+        if (BuildConfig.DEBUG) return ticketAmount(productId) != null
+        return productDetailsById.containsKey(productId)
     }
 
     fun purchase(productId: String, onResult: (Status) -> Unit) {
@@ -387,16 +391,18 @@ class TicketLicenseManager(
     }
 
     companion object {
+        // 余裕多め: 100/500/1000 · Console 価格 ¥300 / ¥900 / ¥1,500（¥250は価格帯に無い）
         const val PRODUCT_100 = "jp.lagado.literaryfragments.ticket100"
+        const val PRODUCT_500 = "jp.lagado.literaryfragments.ticket500"
         const val PRODUCT_1000 = "jp.lagado.literaryfragments.ticket1000"
-        const val PRODUCT_10000 = "jp.lagado.literaryfragments.ticket10000"
 
-        val ALL_PRODUCTS = listOf(PRODUCT_100, PRODUCT_1000, PRODUCT_10000)
+        val ALL_PRODUCTS = listOf(PRODUCT_100, PRODUCT_500, PRODUCT_1000)
 
-        private val DEBUG_PRICES = mapOf(
-            PRODUCT_100 to "¥150",
-            PRODUCT_1000 to "¥900",
-            PRODUCT_10000 to "¥4,500",
+        /** Console 未反映時の表示用（iOS IAPProduct.fallbackPriceLabel と同型） */
+        private val FALLBACK_PRICES = mapOf(
+            PRODUCT_100 to "¥300",
+            PRODUCT_500 to "¥900",
+            PRODUCT_1000 to "¥1,500",
         )
 
         private const val PREFS_LICENSE = "fragments_ticket_license"
@@ -404,8 +410,8 @@ class TicketLicenseManager(
 
         fun ticketAmount(productId: String): Int? = when (productId) {
             PRODUCT_100 -> 100
+            PRODUCT_500 -> 500
             PRODUCT_1000 -> 1000
-            PRODUCT_10000 -> 10000
             else -> null
         }
     }

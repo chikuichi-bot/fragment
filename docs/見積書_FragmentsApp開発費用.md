@@ -27,7 +27,7 @@ Lagado Research Institute 御中
 | 技術構成 | iOS: SwiftUI + WKWebView（HTML/CSS/JS）／Android: Kotlin ネイティブ／サーバー: PHP API + Gemini |
 | 表示名 / Bundle | `Fragments` / `jp.lagado.pocketfortune` |
 | 外部 API | `lagado.jp/fragments/api.php`、`gemini.php`、Open-Meteo（天気）、Google 書籍検索 |
-| 課金 | StoreKit 2 消費型チケット（100 / 1000 / 10000）＋ Android 課金 UI |
+| 課金 | StoreKit 2 消費型チケット（100 / 500 / 1000 · 余裕多め）＋ Android 課金 UI |
 | 納品物 | ソースコード、Xcode / Android プロジェクト、サーバー連携手順、ビルド・検証手順書 |
 
 ※ 本アプリは **おみくじ文庫とは別プロダクト** です（コードベース・ストア・課金 ID とも独立）。

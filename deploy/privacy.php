@@ -3,25 +3,48 @@
  * Literary Fragments — プライバシーポリシー + サポート（お問い合わせフォーム）
  * 公開先例: https://lagado.jp/fragments/privacy.php
  * Android 版: https://lagado.jp/fragments/privacy-android.php
- * 制作: Lagado Research Institute
+ * 正本: deploy/privacy.php（ロリポップ public_html/fragments/ へアップロード）
+ *
+ * 同型: アボモン / そばメモ（From は info@lagado.jp · Reply-To のみ利用者）
  */
-$to = "lagadolab@gmail.com";
+$to = "info@lagado.jp";
+// postmail と同じ受信箱。From も同一ドメイン（SPF）で届きやすくする。
+$from = "info@lagado.jp";
 $status_message = "";
 $status_ok = false;
 
+/**
+ * メールが迷惑フォルダでも問い合わせを落とさないよう、サーバに控えを残す。
+ * Web 非公開: fragments/_inbox/（.htaccess で拒否）
+ */
+function fragments_save_inquiry(string $subject, string $body): bool
+{
+    $dir = __DIR__ . "/_inbox";
+    if (!is_dir($dir) && !@mkdir($dir, 0700, true)) {
+        return false;
+    }
+    $htaccess = $dir . "/.htaccess";
+    if (!is_file($htaccess)) {
+        @file_put_contents(
+            $htaccess,
+            "Require all denied\nDeny from all\nOptions -Indexes\n"
+        );
+    }
+    $entry = "==== " . date("Y-m-d H:i:s") . " JST ====\n";
+    $entry .= "Subject: {$subject}\n\n";
+    $entry .= $body;
+    $entry .= "\n\n";
+    return @file_put_contents($dir . "/inquiries.log", $entry, FILE_APPEND | LOCK_EX) !== false;
+}
+
 if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $honeypot = trim((string) ($_POST["website"] ?? ""));
+    // ブラウザが website を自動入力すると、送信せず成功表示になるため別名にする
+    $honeypot = trim((string) ($_POST["hp_field"] ?? ""));
     $name = trim((string) ($_POST["name"] ?? ""));
     $email = trim((string) ($_POST["email"] ?? ""));
     $topic = trim((string) ($_POST["topic"] ?? ""));
     $device = trim((string) ($_POST["device"] ?? ""));
     $message = trim((string) ($_POST["message"] ?? ""));
-
-    $name = htmlspecialchars($name, ENT_QUOTES, "UTF-8");
-    $email = htmlspecialchars($email, ENT_QUOTES, "UTF-8");
-    $topic = htmlspecialchars($topic, ENT_QUOTES, "UTF-8");
-    $device = htmlspecialchars($device, ENT_QUOTES, "UTF-8");
-    $message = htmlspecialchars($message, ENT_QUOTES, "UTF-8");
 
     if ($honeypot !== "") {
         $status_ok = true;
@@ -31,33 +54,44 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $status_message = "メールアドレスの形式が正しくありません。 / Please enter a valid email address.";
     } else {
+        $name_h = htmlspecialchars($name, ENT_QUOTES, "UTF-8");
+        $email_h = htmlspecialchars($email, ENT_QUOTES, "UTF-8");
+        $topic_h = htmlspecialchars($topic, ENT_QUOTES, "UTF-8");
+        $device_h = htmlspecialchars($device, ENT_QUOTES, "UTF-8");
+        $message_h = htmlspecialchars($message, ENT_QUOTES, "UTF-8");
+
         $subject = "【Literary Fragments】お問い合わせ";
         if ($topic !== "") {
             $subject .= "（{$topic}）";
         }
         $body = "Literary Fragments のサポートページからお問い合わせがありました。\n\n";
-        $body .= "【お名前】\n{$name}\n\n";
-        $body .= "【返信用メール】\n{$email}\n\n";
+        $body .= "【お名前】\n{$name_h}\n\n";
+        $body .= "【返信用メール】\n{$email_h}\n\n";
         if ($topic !== "") {
-            $body .= "【種別】\n{$topic}\n\n";
+            $body .= "【種別】\n{$topic_h}\n\n";
         }
         if ($device !== "") {
-            $body .= "【端末・OS・アプリ版】\n{$device}\n\n";
+            $body .= "【端末・OS・アプリ版】\n{$device_h}\n\n";
         }
-        $body .= "【内容】\n{$message}\n";
+        $body .= "【内容】\n{$message_h}\n";
 
-        $headers = "From: Literary Fragments <{$to}>\r\n";
-        $headers .= "Reply-To: {$email}\r\n";
-        $headers .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        // 迷惑メール行きでも控えは残す
+        $logged = fragments_save_inquiry($subject, $body);
 
-        mb_language("ja");
+        mb_language("Japanese");
         mb_internal_encoding("UTF-8");
 
-        if (@mb_send_mail($to, $subject, $body, $headers)) {
+        // Content-Type は付けない（mb_send_mail が日本語用に変換・付与する）
+        $headers = "From: Literary Fragments <{$from}>\r\n";
+        $headers .= "Reply-To: {$email}\r\n";
+
+        $mailed = @mb_send_mail($to, $subject, $body, $headers, "-f{$from}");
+
+        if ($mailed || $logged) {
             $status_ok = true;
             $status_message = "お問い合わせを送信しました。ご連絡ありがとうございます。 / Thank you. Your message was sent.";
         } else {
-            $status_message = "送信に失敗しました。しばらくしてから再度お試しいただくか、直接メール（lagadolab@gmail.com）へご連絡ください。 / Sending failed. Please try again or email lagadolab@gmail.com.";
+            $status_message = "送信に失敗しました。しばらくしてから再度お試しいただくか、直接メール（info@lagado.jp）へご連絡ください。 / Sending failed. Please try again or email info@lagado.jp.";
         }
     }
 }
@@ -271,7 +305,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <p>不具合のご報告・ご質問・ご要望は、下のフォームからお送りください。直接メールでも受け付けています。</p>
                 <p>
                     制作: ラガード研究所 / Lagado Research Institute<br>
-                    メール: <a class="mail" href="mailto:lagadolab@gmail.com">lagadolab@gmail.com</a>
+                    メール: <a class="mail" href="mailto:info@lagado.jp">info@lagado.jp</a>
                 </p>
 
                 <?php if ($status_message !== ""): ?>
@@ -283,8 +317,8 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <?php if (!$status_ok): ?>
                 <form action="#support" method="POST" class="contact-form">
                     <div class="hp" aria-hidden="true">
-                        <label for="website">Website</label>
-                        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+                        <label for="hp_field">Leave blank</label>
+                        <input type="text" id="hp_field" name="hp_field" value="" tabindex="-1" autocomplete="off">
                     </div>
                     <div class="form-group">
                         <label for="name">お名前（ペンネーム可） / Name</label>
@@ -358,10 +392,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <p>本アプリは、必要に応じて本プライバシーポリシーを変更することがあります。重要な変更がある場合は、アプリ内または各ストアのページでお知らせいたします。</p>
 
                 <h2>9. お問い合わせ</h2>
-                <p>本アプリに関するお問い合わせは、<a href="#support">ページ上部のサポートフォーム</a>、または <a href="mailto:lagadolab@gmail.com">lagadolab@gmail.com</a> までご連絡ください。<br>
+                <p>本アプリに関するお問い合わせは、<a href="#support">ページ上部のサポートフォーム</a>、または <a href="mailto:info@lagado.jp">info@lagado.jp</a> までご連絡ください。<br>
                 制作: ラガード研究所 / Lagado Research Institute</p>
 
-                <p class="footer-note">制定日: 2026年4月7日<br>改定日: 2026年7月26日</p>
+                <p class="footer-note">制定日: 2026年4月7日<br>改定日: 2026年7月29日</p>
             </div>
 
             <div class="card" id="privacy-en">
@@ -400,10 +434,10 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <p>This policy may be updated from time to time. Significant changes will be announced in the App or on the store listing.</p>
 
                 <h2>9. Contact</h2>
-                <p>Use the <a href="#support">support form above</a> or email <a href="mailto:lagadolab@gmail.com">lagadolab@gmail.com</a>.<br>
+                <p>Use the <a href="#support">support form above</a> or email <a href="mailto:info@lagado.jp">info@lagado.jp</a>.<br>
                 Presented by: Lagado Research Institute</p>
 
-                <p class="footer-note">Effective: April 7, 2026<br>Updated: July 26, 2026</p>
+                <p class="footer-note">Effective: April 7, 2026<br>Updated: July 29, 2026</p>
             </div>
         </div>
     </body>

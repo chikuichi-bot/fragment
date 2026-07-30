@@ -86,18 +86,19 @@ Fragments Android · 完了 80% · 残り 20%
 | Android `applicationId` | `jp.lagado.literaryfragments` |
 | iOS Bundle（Xcode） | `jp.lagado.pocketfortune`（表示名 Fragments） |
 | 表示名 | Literary Fragments / Fragments |
-| Android `versionName` / `versionCode` | `1.0.3` / `4`（`android/app/build.gradle.kts`） |
-| iOS 近況（Xcode 正本 · 2026-07-28） | Marketing **1.0.5** · Build **6**（`CURRENT_PROJECT_VERSION`）· Team `Q82QB32AZ8` · Deployment **26.4** · 暗号化申告 `ITSAppUsesNonExemptEncryption = NO` · App Store ID `6760742804` |
+| Android `versionName` / `versionCode` | `1.0.4` / `5`（`android/app/build.gradle.kts` · IAP 100/500/1000） |
+| iOS 近況（Xcode 正本 · 2026-07-30） | Marketing **1.0.6** · Build **7** · Team `Q82QB32AZ8` · Deployment **26.4** · 暗号化申告 `NO` · App Store ID `6760742804` · IAP 100/500/1000 |
 
 ### 課金プロダクト ID（iOS と揃える・消耗型）
 
 | Product ID | 枚数 | 備考 |
 |------------|------|------|
-| `jp.lagado.literaryfragments.ticket100` | 100 | iOS StoreKit 済 |
-| `jp.lagado.literaryfragments.ticket1000` | 1000 | |
-| `jp.lagado.literaryfragments.ticket10000` | 10000 | |
+| `jp.lagado.literaryfragments.ticket100` | 100 | Console 価格 **¥300**（¥250は価格帯に無し） |
+| `jp.lagado.literaryfragments.ticket500` | 500 | **新規** · Console 価格 **¥900** |
+| `jp.lagado.literaryfragments.ticket1000` | 1000 | Console 価格 **¥1,500** |
 
-Android UI の表示価格（いまハードコード）: ¥150 / ¥900 / ¥4,500 — **本番は Play の `displayPrice` を使う**（Abomon 同方針）。
+旧 `ticket10000` はコードから削除（販売停止）。  
+Android Debug 仮価格: ¥300 / ¥900 / ¥1,500 — **本番は Play の `displayPrice` を使う**（Abomon 同方針）。
 
 ### サーバ（共通・iOS/Android）
 

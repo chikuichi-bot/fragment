@@ -1,16 +1,20 @@
 # Literary Fragments Android — Play Billing（D）
 
-製品 ID は **iOS と同一**（消耗型）:
+製品 ID は **iOS と同一**（消耗型）· 余裕多め価格帯（2026-07-29）:
 
-| Product ID | 枚数 | Debug 仮価格 |
-|------------|------|--------------|
-| `jp.lagado.literaryfragments.ticket100` | 100 | ¥150 |
-| `jp.lagado.literaryfragments.ticket1000` | 1000 | ¥900 |
-| `jp.lagado.literaryfragments.ticket10000` | 10000 | ¥4,500 |
+| Product ID | 枚数 | 設定価格（目標） | Debug 仮価格 |
+|------------|------|------------------|--------------|
+| `jp.lagado.literaryfragments.ticket100` | 100 | **¥300** | ¥300 |
+| `jp.lagado.literaryfragments.ticket500` | 500 | **¥900** | ¥900 |
+| `jp.lagado.literaryfragments.ticket1000` | 1000 | **¥1,500** | ¥1,500 |
 
-本番価格は Play の `displayPrice` をそのまま表示（Abomon 同方針）。  
+**廃止（コードから外した）:** `…ticket10000`（旧 10000枚）  
+**ASC:** `ticket500` 作成済（2026-07-30）· 価格は Console で **¥300 / ¥900 / ¥1,500** に設定すること。  
+既存 `ticket100` / `ticket1000` は **価格だけ** 更新。Play も同 ID を揃える。
+
+本番価格は Play の `displayPrice` / StoreKit の `displayPrice` をそのまま表示（未取得時は目安 ¥300 / ¥900 / ¥1,500）。  
 依存: **Play Billing Library `8.3.0`**  
-コード: `TicketLicenseManager.kt` · UI: `TicketStoreActivity.kt`
+コード: `TicketLicenseManager.kt` · UI: `TicketStoreActivity.kt` · iOS: `IAPProduct` / `CatalogTicketPackRow` in `ContentView.swift` · Android **1.0.4 (5)**
 
 型の参考（別アプリ）: `OmikujiBunko_Master/AbomonGame/docs/android/BILLING.md`
 
@@ -31,6 +35,7 @@ Release / 提出ビルドでは本物の Billing のみ。
 - Android: `https://lagado.jp/fragments/privacy-android.php`（正本: `FragmentsApp/deploy/privacy-android.php`）
 - iOS / 共通: `https://lagado.jp/fragments/privacy.php`（正本: `FragmentsApp/deploy/privacy.php`）
 - 旧 URL `…/privacy/` は `privacy/index.html` から新版へリダイレクト
+- **お問い合わせメール（2026-07-29 · アボモン／そばメモ同型）:** `From`/`-f` は `info@lagado.jp`、利用者は `Reply-To` のみ。控えは `fragments/_inbox/inquiries.log`。ロリポップへ両 PHP をアップロードすること。
 
 ## D2 · 実装（コード）
 

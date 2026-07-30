@@ -2,8 +2,8 @@
 
 > **完了 80% · 残り 20%**  
 > 次: **F** QA・ストア提出（F1 もう1台 · F2 残り · F3 本番）  
-> 更新: 2026-07-28  
-> 前提: iOS は Xcode **1.0.5 / Build 6**（`jp.lagado.pocketfortune` · 表示 Fragments）· Android は Kotlin ネイティブ **1.0.3 / code 4** · API は `lagado.jp/fragments/` 共通 · 課金は StoreKit / Play Billing 8.3.0（Debug は開発付与）
+> 更新: 2026-07-30  
+> 前提: iOS は Xcode **1.0.6 / Build 7**（IAP 100/500/1000）· Android は Kotlin **1.0.4 / code 5** · API は `lagado.jp/fragments/` 共通 · 課金は StoreKit / Play Billing 8.3.0（Debug は開発付与）
 
 ```
 Fragments Android · 完了 80% · 残り 20%
@@ -13,7 +13,7 @@ Fragments Android · 完了 80% · 残り 20%
 ### Play Console（枠）
 
 - [x] アプリ作成 **Literary Fragments** · `jp.lagado.literaryfragments`
-- [x] 課金商品 D1（ticket100 / 1000 / 10000）· Alpha **2 (1.0.1)** クローズド公開済 · 本番公開は **F**
+- [x] 課金商品 D1（ticket100 / 500 / 1000 · 余裕多め ¥300 / ¥900 / ¥1,500）· Alpha **2 (1.0.1)** クローズド公開済 · 本番公開は **F** · ASC `ticket500` 作成済（2026-07-30）· 価格設定・Play 登録が残作業
 
 ### ビルドメモ
 
@@ -30,7 +30,7 @@ cd FragmentsApp/android
 | | iOS | Android |
 |--|-----|---------|
 | Bundle / ID | `jp.lagado.pocketfortune`（表示 Fragments） | `jp.lagado.literaryfragments` |
-| 版 | **1.0.5** / Build **6**（Xcode · 2026-07-28） | **1.0.3** / versionCode **4** |
+| 版 | **1.0.6** / Build **7**（Xcode · 2026-07-30） | **1.0.4** / versionCode **5** |
 | チケット IAP | StoreKit · `jp.lagado.literaryfragments.ticket*` | Billing 8.3.0 · 同 ID（D1–D4 済） |
 | 気配・場所 | `PlaceLiteraryLexicon` + GPS | 同型（コード済） |
 | 左右スワイプ | どちらも新規ランダム（履歴めくりなし） | 同型 |
@@ -84,7 +84,7 @@ cd FragmentsApp/android
 
 ## D · Play Billing（25）
 
-- [x] **D1** Play Console アプリ枠 + 製品（ticket100 / 1000 / 10000 · iOS ID に合わせる）（5）· 2026-07-26 · Alpha **2 (1.0.1)** 公開
+- [x] **D1** Play Console アプリ枠 + 製品（ticket100 / 500 / 1000 · iOS ID に合わせる）（5）· 2026-07-26 · Alpha **2 (1.0.1)** 公開 · 2026-07-29 構成を 100/500/1000・余裕多め価格に更新（`ticket500` 新規）
 - [x] **D2** Billing Library（8.3.0）+ 購入フロー（シミュ撤去）（10）· `TicketLicenseManager` · 2026-07-24
 - [x] **D3** 台帳冪等（purchaseToken）· 無料日次と有料の分離（5）· 2026-07-24
 - [x] **D4** クローズドテスト実機課金（5）· 2026-07-26 · SH-03K · Play 版で購入成功

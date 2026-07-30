@@ -1,7 +1,7 @@
 # Literary Fragments iOS — Xcode 正本ステータス
 
-> **更新:** 2026-07-28  
-> **読み取り元:** `PocketFortune.xcodeproj` + `xcodebuild -showBuildSettings`（`generic/platform=iOS` · Release）  
+> **更新:** 2026-07-30  
+> **読み取り元:** `PocketFortune.xcodeproj` + `ContentView.swift`（IAP）  
 > **Xcode:** 26.6（Build 17F113）· SDK `iphoneos26.5`
 
 ## いまの版
@@ -12,8 +12,8 @@
 | ターゲット | `PocketFortune` |
 | スキーム | `LiteraryFragments` |
 | Bundle ID（iphoneos） | `jp.lagado.pocketfortune` |
-| Marketing | **1.0.5** |
-| Build | **6**（`CURRENT_PROJECT_VERSION`） |
+| Marketing | **1.0.6** |
+| Build | **7**（`CURRENT_PROJECT_VERSION`） |
 | Deployment | **iOS 26.4** |
 | Team | `Q82QB32AZ8` |
 | 署名 | Automatic |
@@ -22,6 +22,7 @@
 | Swift | 5.0 |
 | 製品 | `PocketFortune.app` |
 | 端末 | iPhone / iPad（`TARGETED_DEVICE_FAMILY = 1,2,7`） |
+| StoreKit 設定 | `PocketFortune/Products.storekit`（100 / 500 / 1000） |
 
 ## 構成（正本パス）
 
@@ -37,11 +38,15 @@ FragmentsApp/
 └── docs/ios/STATUS.md                # 本ファイル
 ```
 
-## 最近のコード上の確定事項（2026-07-28）
+## 最近のコード上の確定事項（2026-07-28〜30）
 
 - 左右スワイプは **どちらも新規ランダム**（履歴めくりなし）· `ContentView.swift` + `main.js`
 - 設定のプライバシーリンクは `https://lagado.jp/fragments/privacy.php`
 - チケット購入導線の絵文字ラベルを整理（`buyButton ›`）
+- **IAP（余裕多め · 2026-07-30）:** `ticket100` / `ticket500` / `ticket1000` · 目標価格 **¥300 / ¥900 / ¥1,500**
+  - UI: 常に3段表示（StoreKit 未取得でも目安価格）· バッジ「人気」「お得」· ボタンは青統一
+  - ASC: `ticket500` **作成済** · 価格設定（¥300 / ¥900 / ¥1,500）と旧 `ticket10000` 販売停止が残
+  - Android も同 ID（`TicketLicenseManager` · 1.0.4）
 
 ## 関連
 

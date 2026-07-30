@@ -20,8 +20,8 @@
 | `CODE_SIGN_STYLE` | Automatic |
 | `DEVELOPMENT_TEAM` | `Q82QB32AZ8` |
 | `PRODUCT_BUNDLE_IDENTIFIER`（iphoneos） | `jp.lagado.pocketfortune` |
-| `MARKETING_VERSION` | **1.0.5** |
-| `CURRENT_PROJECT_VERSION` | **6** |
+| `MARKETING_VERSION` | **1.0.6** |
+| `CURRENT_PROJECT_VERSION` | **7** |
 | `IPHONEOS_DEPLOYMENT_TARGET` | **26.4**（実機・TestFlight はこの OS 以上が必要） |
 | `ITSAppUsesNonExemptEncryption` | **NO** |
 | SDK | `iphoneos26.5`（Xcode 26.6 / 17F113） |
@@ -81,11 +81,13 @@
 
 ### 5.2 コード上のプロダクト ID（`IAPProduct`）
 
-| プロダクト ID | チケット枚数 |
-|----------------|-------------|
-| `jp.lagado.literaryfragments.ticket100` | 100 |
-| `jp.lagado.literaryfragments.ticket1000` | 1000 |
-| `jp.lagado.literaryfragments.ticket10000` | 10000 |
+| プロダクト ID | チケット枚数 | 目標価格 |
+|----------------|-------------|---------|
+| `jp.lagado.literaryfragments.ticket100` | 100 | **¥300**（¥250は価格帯に無し） |
+| `jp.lagado.literaryfragments.ticket500` | 500 | **¥900**（新規 ID） |
+| `jp.lagado.literaryfragments.ticket1000` | 1000 | **¥1,500** |
+
+> 旧 `ticket10000` はコードから削除。App Store Connect / Play Console で販売停止し、`ticket500` を新規作成すること。
 
 **Bundle ID**（アプリ）は `jp.lagado.pocketfortune` だが、IAP ID は上記の `literaryfragments` プレフィックス。App Store Connect 側のプロダクト ID がコードと **完全一致**しているか必ず確認すること。
 

@@ -62,6 +62,7 @@ class TicketStoreActivity : AppCompatActivity() {
     private fun rebuildStoreList() {
         val storeList = findViewById<LinearLayout>(R.id.storeList)
         storeList.removeAllViews()
+        // iOS CatalogTicketPackRow 同型: 常に 100 / 500 / 1000 を出す
         addStoreItem(
             storeList,
             TicketLicenseManager.PRODUCT_100,
@@ -71,18 +72,31 @@ class TicketStoreActivity : AppCompatActivity() {
         )
         addStoreItem(
             storeList,
-            TicketLicenseManager.PRODUCT_1000,
-            1000,
-            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_1000),
-            "MOST POPULAR",
+            TicketLicenseManager.PRODUCT_500,
+            500,
+            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_500),
+            "人気",
         )
         addStoreItem(
             storeList,
-            TicketLicenseManager.PRODUCT_10000,
-            10000,
-            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_10000),
-            "BEST VALUE",
+            TicketLicenseManager.PRODUCT_1000,
+            1000,
+            licenseManager.displayPrice(TicketLicenseManager.PRODUCT_1000),
+            "お得",
         )
+        val anyPlayProduct = listOf(
+            TicketLicenseManager.PRODUCT_100,
+            TicketLicenseManager.PRODUCT_500,
+            TicketLicenseManager.PRODUCT_1000,
+        ).any { licenseManager.isProductAvailable(it) && !BuildConfig.DEBUG }
+        if (!anyPlayProduct && !BuildConfig.DEBUG) {
+            storeList.addView(TextView(this).apply {
+                text = "Play の商品がまだ反映されていません。価格は目安表示です。"
+                textSize = 11f
+                setTextColor(if (isDark) Color.parseColor("#9E9E9E") else Color.parseColor("#757575"))
+                setPadding(16, 12, 16, 8)
+            })
+        }
     }
 
     private fun closeScreen() {
@@ -202,13 +216,24 @@ class TicketStoreActivity : AppCompatActivity() {
         price: String,
         badge: String?,
     ) {
+        val available = licenseManager.isProductAvailable(productId)
         val row = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
             gravity = Gravity.CENTER_VERTICAL
             setPadding(16, 32, 16, 32)
+            // iOS: 未取得でも青ボタン表示 · 透明度だけ落とす
+            alpha = if (available) 1f else 0.85f
 
             setOnClickListener {
                 if (purchaseBusy || isAnimatingOut) return@setOnClickListener
+                if (!available) {
+                    Toast.makeText(
+                        this@TicketStoreActivity,
+                        "商品を読み込めませんでした",
+                        Toast.LENGTH_SHORT,
+                    ).show()
+                    return@setOnClickListener
+                }
                 purchaseBusy = true
                 licenseManager.purchase(productId) { status ->
                     runOnUiThread {
@@ -267,7 +292,7 @@ class TicketStoreActivity : AppCompatActivity() {
             setTypeface(null, android.graphics.Typeface.BOLD)
         })
         titleContainer.addView(TextView(this).apply {
-            text = " Tickets"
+            text = " 枚"
             textSize = 14f
             setTextColor(if (isDark) Color.parseColor("#9E9E9E") else Color.parseColor("#757575"))
             setPadding(8, 0, 0, 0)
@@ -297,7 +322,7 @@ class TicketStoreActivity : AppCompatActivity() {
         row.addView(priceBtn)
         parent.addView(row)
 
-        if (amount != 10000) {
+        if (amount != 1000) {
             val divider = View(this).apply {
                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.MATCH_PARENT, 2).apply {
                     setMargins(16, 0, 16, 0)

@@ -60,15 +60,49 @@ class TicketManager: ObservableObject {
 }
 
 enum IAPProduct: String, CaseIterable {
+    /// 余裕多め価格帯: 100 / 500 / 1000（ストア価格帯: ¥300 / ¥900 / ¥1,500 ※¥250は非存在）
     case ticket100 = "jp.lagado.literaryfragments.ticket100"
+    case ticket500 = "jp.lagado.literaryfragments.ticket500"
     case ticket1000 = "jp.lagado.literaryfragments.ticket1000"
-    case ticket10000 = "jp.lagado.literaryfragments.ticket10000"
 
     var ticketAmount: Int {
         switch self {
         case .ticket100: return 100
+        case .ticket500: return 500
         case .ticket1000: return 1000
-        case .ticket10000: return 10000
+        }
+    }
+
+    /// Console 未反映時の表示用（StoreKit の displayPrice が無いとき）
+    var fallbackPriceLabel: String {
+        switch self {
+        case .ticket100: return "¥300"
+        case .ticket500: return "¥900"
+        case .ticket1000: return "¥1,500"
+        }
+    }
+
+    var storeBadge: String? {
+        switch self {
+        case .ticket100: return nil
+        case .ticket500: return "MOST POPULAR"
+        case .ticket1000: return "BEST VALUE"
+        }
+    }
+
+    func storeBadge(isJapanese: Bool) -> String? {
+        switch self {
+        case .ticket100: return nil
+        case .ticket500: return isJapanese ? "人気" : "MOST POPULAR"
+        case .ticket1000: return isJapanese ? "お得" : "BEST VALUE"
+        }
+    }
+
+    var sortIndex: Int {
+        switch self {
+        case .ticket100: return 0
+        case .ticket500: return 1
+        case .ticket1000: return 2
         }
     }
 }
@@ -96,7 +130,11 @@ class StoreManager: ObservableObject {
         do {
             let productIDs = IAPProduct.allCases.map { $0.rawValue }
             let fetchedProducts = try await Product.products(for: productIDs)
-            self.products = fetchedProducts.sorted { $0.price < $1.price }
+            self.products = fetchedProducts.sorted { a, b in
+                let ia = IAPProduct(rawValue: a.id)?.sortIndex ?? 99
+                let ib = IAPProduct(rawValue: b.id)?.sortIndex ?? 99
+                return ia < ib
+            }
             self.isLoadingProducts = false
         } catch {
             self.isLoadingProducts = false
@@ -1568,16 +1606,31 @@ struct TicketStoreView: View {
                         ProgressView()
                         Spacer()
                     }
-                } else if storeManager.products.isEmpty {
-                    Text(isJapanese ? "商品情報を取得できませんでした。通信環境を確認してください。" : "Could not load products. Please check your connection.")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-                        .padding(.vertical, 8)
                 } else {
-                    ForEach(storeManager.products) { product in
-                        RealTicketPackRow(product: product, descriptionText: langManager.ui.ticketDesc, isPurchasing: storeManager.isPurchasing) {
-                            Task { try? await storeManager.purchase(product) }
+                    // 常に 100 / 500 / 1000 の3段を表示（StoreKit 未取得でもラベルは出す）
+                    ForEach(IAPProduct.allCases, id: \.rawValue) { pack in
+                        let product = storeManager.products.first { $0.id == pack.rawValue }
+                        CatalogTicketPackRow(
+                            amount: pack.ticketAmount,
+                            priceLabel: product?.displayPrice ?? pack.fallbackPriceLabel,
+                            badge: pack.storeBadge(isJapanese: isJapanese),
+                            descriptionText: langManager.ui.ticketDesc,
+                            unitLabel: isJapanese ? "枚" : "Tickets",
+                            isPurchasing: storeManager.isPurchasing,
+                            isAvailable: product != nil
+                        ) {
+                            if let product {
+                                Task { try? await storeManager.purchase(product) }
+                            }
                         }
+                    }
+                    if storeManager.products.isEmpty {
+                        Text(isJapanese
+                             ? "App Store の商品がまだ反映されていません。価格は目安表示です。"
+                             : "Store products are not available yet. Prices shown are estimates.")
+                            .font(.caption2)
+                            .foregroundColor(.secondary)
+                            .padding(.top, 4)
                     }
                 }
             }
@@ -1635,6 +1688,68 @@ struct TicketPackRow: View {
     }
 }
 
+struct CatalogTicketPackRow: View {
+    let amount: Int
+    let priceLabel: String
+    let badge: String?
+    let descriptionText: String
+    let unitLabel: String
+    let isPurchasing: Bool
+    let isAvailable: Bool
+    var action: () -> Void
+
+    var body: some View {
+        Button(action: {
+            guard isAvailable, !isPurchasing else { return }
+            UIImpactFeedbackGenerator(style: .medium).impactOccurred()
+            action()
+        }) {
+            HStack {
+                VStack(alignment: .leading, spacing: 4) {
+                    if let badge {
+                        Text(badge)
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(1.0)
+                            .foregroundColor(.orange)
+                    }
+                    HStack(alignment: .firstTextBaseline, spacing: 4) {
+                        Text("\(amount)")
+                            .font(.title3)
+                            .fontWeight(.semibold)
+                            .foregroundColor(.primary)
+                        Text(unitLabel)
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
+                    }
+                    Text(descriptionText)
+                        .font(.caption)
+                        .foregroundColor(.secondary)
+                }
+
+                Spacer()
+
+                if isPurchasing {
+                    ProgressView()
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 16)
+                } else {
+                    Text(priceLabel)
+                        .font(.subheadline)
+                        .fontWeight(.bold)
+                        .foregroundColor(.white)
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 16)
+                        .background(Color.blue)
+                        .cornerRadius(16)
+                }
+            }
+            .padding(.vertical, 4)
+            .opacity(isAvailable ? 1.0 : 0.85)
+        }
+        .disabled(!isAvailable || isPurchasing)
+    }
+}
+
 struct RealTicketPackRow: View {
     let product: Product
     let descriptionText: String
@@ -1642,17 +1757,27 @@ struct RealTicketPackRow: View {
     var action: () -> Void
     
     var body: some View {
+        let pack = IAPProduct(rawValue: product.id)
         Button(action: {
             UIImpactFeedbackGenerator(style: .medium).impactOccurred()
             action()
         }) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
+                    if let badge = pack?.storeBadge {
+                        Text(badge)
+                            .font(.system(size: 10, weight: .bold))
+                            .tracking(1.0)
+                            .foregroundColor(.orange)
+                    }
                     HStack(alignment: .firstTextBaseline, spacing: 4) {
-                        Text(product.displayName)
+                        Text("\(pack?.ticketAmount ?? 0)")
                             .font(.title3)
                             .fontWeight(.semibold)
                             .foregroundColor(.primary)
+                        Text("Tickets")
+                            .font(.subheadline)
+                            .foregroundColor(.secondary)
                     }
                     Text(descriptionText)
                         .font(.caption)
