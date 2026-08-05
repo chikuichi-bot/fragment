@@ -13,7 +13,7 @@ Fragments Android · 完了 80% · 残り 20%
 ### Play Console（枠）
 
 - [x] アプリ作成 **Literary Fragments** · `jp.lagado.literaryfragments`
-- [x] 課金商品 D1（ticket100 / 500 / 1000 · 余裕多め ¥300 / ¥900 / ¥1,500）· Alpha **2 (1.0.1)** クローズド公開済 · 本番公開は **F** · ASC `ticket500` 作成済（2026-07-30）· 価格設定・Play 登録が残作業
+- [x] 課金商品 D1（ticket100 / 500 / 1000 · 余裕多め ¥300 / ¥900 / ¥1,500）· Alpha **2 (1.0.1)** クローズド公開済 · **1.0.4 AAB** 準備済（2026-07-30 · `store-assets/LiteraryFragments-1.0.4-release.aab`）· 本番公開は **F** · Play `ticket500` 購入確認済 · 価格設定・本番は残作業
 
 ### ビルドメモ
 
