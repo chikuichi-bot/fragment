@@ -1,0 +1,44 @@
+* { box-sizing: border-box; margin: 0; padding: 0; }
+html, body {
+  width: 1284px; height: 2778px; overflow: hidden;
+  font-family: -apple-system, "Hiragino Sans", "Hiragino Kaku Gothic ProN", sans-serif;
+  background: #F2F2F7; color: #1D1D1D;
+  -webkit-font-smoothing: antialiased;
+}
+.safe { padding: 72px 48px 64px; height: 100%; display: flex; flex-direction: column; }
+.nav { height: 88px; display: flex; align-items: center; justify-content: center; position: relative; font-size: 34px; font-weight: 600; }
+.nav .back { position: absolute; left: 8px; color: #007AFF; font-size: 40px; }
+.card {
+  background: #fff; border-radius: 28px; padding: 40px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+}
+.muted { color: #8E8E93; }
+.btn {
+  display: inline-block; background: #007AFF; color: #fff;
+  border-radius: 999px; padding: 22px 48px; font-weight: 700; font-size: 28px;
+}
+.quote {
+  flex: 1; display: flex; flex-direction: column; justify-content: center;
+  padding: 40px 24px; text-align: center;
+}
+.quote .text { font-size: 44px; line-height: 1.55; font-weight: 500; }
+.quote .src { margin-top: 48px; font-size: 28px; color: #6B6B6B; }
+.bottom-bar {
+  height: 140px; display: flex; justify-content: space-around; align-items: center;
+  background: rgba(255,255,255,0.85); backdrop-filter: blur(20px);
+  border-radius: 32px; margin-top: auto;
+}
+.bottom-bar span { font-size: 40px; opacity: 0.7; }
+.list-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 36px 8px; border-bottom: 1px solid #E5E5EA; font-size: 32px;
+}
+.list-row:last-child { border-bottom: none; }
+.check { color: #FF9500; font-size: 32px; }
+.hero-icon { font-size: 120px; text-align: center; margin: 80px 0 40px; }
+h1 { font-size: 56px; text-align: center; margin-bottom: 28px; }
+.desc { font-size: 32px; line-height: 1.6; text-align: center; color: #6B6B6B; padding: 0 24px; }
+.feature { margin: 28px 0; padding: 32px; background: #fff; border-radius: 24px; }
+.feature h3 { font-size: 34px; margin-bottom: 12px; }
+.feature p { font-size: 28px; color: #6B6B6B; line-height: 1.5; }
+.footer-btn { margin-top: auto; text-align: center; padding-bottom: 40px; }

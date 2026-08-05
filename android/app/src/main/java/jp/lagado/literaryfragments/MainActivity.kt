@@ -42,6 +42,9 @@ class MainActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
         applyNativeTheme()
 
+        // iOS 同型: 端末が日本語なら初回 UI 言語を日本語に（未設定時のみ）
+        LanguagePrefs.ensureDefaultLanguage(this)
+
         setContentView(R.layout.activity_main)
         TicketManager.checkDailyReset(this)
 

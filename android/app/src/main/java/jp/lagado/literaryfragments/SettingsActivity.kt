@@ -245,13 +245,9 @@ class SettingsActivity : AppCompatActivity() {
         }
 
         val spinnerAiLevel = findViewById<Spinner>(R.id.spinnerAiLevel)
-        val aiLevels = arrayOf("中学レベル (Beginner)", "高校レベル (Intermediate)", "大学レベル (Advanced)", "ビジネス (Business)")
-        val aiDescs = arrayOf(
-            "複雑な文法用語を避け、基本的な構文や基礎単語をやさしい言葉で解説します。",
-            "関係詞や仮定法など、重要な文法を指摘し論理的に解説します。",
-            "文学的な比喩やニュアンス、文化的背景などアカデミックに深掘りします。",
-            "フォーマル度や、実際のビジネスシーンでどう活かせるかに焦点を当てます。"
-        )
+        // iOS UIStrings.defaultJapanese と同型（英語併記を外す）
+        val aiLevels = LanguagePrefs.aiLevelLabelsJa
+        val aiDescs = LanguagePrefs.aiLevelDescsJa
         spinnerAiLevel.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, aiLevels)
 
         val savedAiLevel = prefs.getInt("englishLevelIndex", 1)
@@ -505,7 +501,7 @@ class SettingsActivity : AppCompatActivity() {
             countryName = country,
             adminArea = admin,
             city = city,
-            preferJapaneseDisplay = true
+            preferJapaneseDisplay = LanguagePrefs.isJapanese(this)
         )
         val search = PlaceLiteraryLexicon.uniquePreserve(
             place.search + listOf(season, sunStr, condition)

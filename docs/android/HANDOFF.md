@@ -14,7 +14,7 @@
 Literary Fragments（FragmentsApp）の Android 版を続ける。
 ゼロから作らない。正本は FragmentsApp/docs/android/PROGRESS.md（いま完了80% · 次は F 提出）。
 引き継ぎ仕様: FragmentsApp/docs/android/HANDOFF.md を先に読む。
-iOS 版は docs/ios/STATUS.md（Xcode 1.0.5 / Build 6）。
+iOS 版は docs/ios/STATUS.md（Xcode **1.0.7 / Build 8**）。
 Abomon の Android 課金は型の参考のみ（別アプリ・別 ID）。
 ```
 
@@ -86,8 +86,8 @@ Fragments Android · 完了 80% · 残り 20%
 | Android `applicationId` | `jp.lagado.literaryfragments` |
 | iOS Bundle（Xcode） | `jp.lagado.pocketfortune`（表示名 Fragments） |
 | 表示名 | Literary Fragments / Fragments |
-| Android `versionName` / `versionCode` | `1.0.4` / `5`（`android/app/build.gradle.kts` · IAP 100/500/1000） |
-| iOS 近況（Xcode 正本 · 2026-07-30） | Marketing **1.0.6** · Build **7** · Team `Q82QB32AZ8` · Deployment **26.4** · 暗号化申告 `NO` · App Store ID `6760742804` · IAP 100/500/1000 |
+| Android `versionName` / `versionCode` | `1.0.5` / `6`（日本語初回既定 · AIレベル表記） |
+| iOS 近況（Xcode 正本 · 2026-08-05） | Marketing **1.0.7** · Build **8** · 端末日本語なら初回UI日本語 · App Store ID `6760742804` · IAP 100/500/1000 |
 
 ### 課金プロダクト ID（iOS と揃える・消耗型）
 
@@ -220,7 +220,7 @@ Release / AAB は Play 提出時。署名キーはユーザー管理（コミッ
 | `api.php` を上げずに場所優先を実機判定 | サーバ旧のままだと弱い。`deploy/api.php` 反映確認 |
 | Product ID を Android だけ変える | iOS と **同一 ID** を維持 |
 | デスクトップパスの NFC/NFD | Finder/シェルでパス不一致が出たら実パスを `ls` で確認 |
-| iOS 版番号の取り違え | ドキュメントの「1.0.3」は旧。Xcode 正本は **1.0.5 / Build 6**。1.0.2 再アップロードは閉じた列車 |
+| iOS 版番号の取り違え | Xcode 正本は **1.0.7 / Build 8**。旧「1.0.3」「1.0.5」記載に惑わされない。1.0.2 再アップロードは閉じた列車 |
 
 ---
 

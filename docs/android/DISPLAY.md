@@ -1,7 +1,8 @@
 # Literary Fragments Android — 表示 parity（C4）
 
 > iOS（`PocketFortune/ContentView.swift`）との見た目・殻の差分メモ。  
-> 更新: 2026-07-30 · iOS Xcode **1.0.6 / Build 7** · Android **1.0.4 / code 5**
+> 更新: 2026-08-05 · iOS Xcode **1.0.7 / Build 8** · Android **1.0.5 / code 6**  
+> Play 日本語掲載: [`PLAY_STORE_JA.md`](PLAY_STORE_JA.md)
 
 ## テーマ
 

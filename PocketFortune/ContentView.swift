@@ -115,6 +115,11 @@ class StoreManager: ObservableObject {
     var updateListenerTask: Task<Void, Error>? = nil
 
     init() {
+        // App Store スクショ: StoreKit 取得待ちのスピナーを出さない
+        if UIScreenshotMode.active != nil {
+            isLoadingProducts = false
+            return
+        }
         updateListenerTask = listenForTransactions()
         Task {
             await fetchProducts()
@@ -263,6 +268,61 @@ struct UIStrings: Codable {
             lengthShort: "Short",
             lengthLong: "Long",
             ticketDesc: "A ticket to unlock AI explanations."
+        )
+    }
+
+    /// オフライン日本語（Gemini 待ちなし · ASC「日本語版」向け）
+    static func defaultJapanese() -> UIStrings {
+        UIStrings(
+            settingsTitle: "設定",
+            nativeLanguageTitle: "あなたの言語",
+            aiLevelTitle: "AI解説のレベル",
+            done: "完了",
+            ticketStore: "チケットストア",
+            selectLanguage: "言語を選ぶ",
+            stockTitle: "ストックした言葉",
+            emptyStock: "まだストックがありません。",
+            viewExplanation: "解説を見る",
+            close: "閉じる",
+            aiExplanationTitle: "AI解説",
+            generatingText: "生成中…\n少々お待ちください⏳",
+            outOfTicketsTitle: "チケットがありません",
+            outOfTicketsMsg: "AI解説にはチケットが必要です。",
+            buyButton: "ストアへ",
+            cancel: "キャンセル",
+            status: "状態",
+            remainingTickets: "チケット",
+            level1: "中学",
+            level2: "高校",
+            level3: "大学",
+            level4: "ビジネス",
+            level1Desc: "難しい文法用語を避け、基本的な構文をやさしく解説します。初心者向けです。",
+            level2Desc: "受験で重要な文法を指摘し、文の構造を論理的に解説します。",
+            level3Desc: "文学的な比喩やニュアンス、文化的背景まで掘り下げます。",
+            level4Desc: "フォーマル度や実務での使い方に焦点を当てて解説します。",
+            confirmExplanationTitle: "確認",
+            confirmExplanationMsg: "チケットを1枚使ってAI解説を生成しますか？",
+            generateButton: "生成する",
+            onboardingTitle: "Fragmentsへようこそ",
+            onboardingDesc: "6万冊以上の名著から抽出した約4,300万の言葉の断片をランダムに表示します。お気に入りを保存し、AI解説を活用して深く味わいましょう。",
+            nextButton: "次へ",
+            startButton: "はじめる",
+            tutorialFeaturesTitle: "使い方",
+            feature1Title: "単語を翻訳",
+            feature1Desc: "単語をタップすると翻訳できます。",
+            feature2Title: "Webで調べる",
+            feature2Desc: "著者名や作品名をタップして本を検索できます。",
+            feature3Title: "言葉を引く",
+            feature3Desc: "スワイプして新しい言葉を引く。",
+            databaseSearch: "データベース検索",
+            searchPlaceholder: "キーワードで検索…",
+            searchEmpty: "見つかりませんでした。",
+            historyTitle: "閲覧履歴",
+            emptyHistory: "履歴はまだありません。",
+            quoteLengthTitle: "文章の長さ",
+            lengthShort: "短文",
+            lengthLong: "長文",
+            ticketDesc: "AI解説を読むためのチケットです。"
         )
     }
 }
@@ -956,7 +1016,26 @@ class LanguageManager: ObservableObject {
         return names
     }()
 
-    init() { loadUI(for: nativeLanguage) }
+    /// 端末が日本語なら初回デフォルトを日本語に（未設定時のみ）
+    static func preferredDefaultLanguage() -> String {
+        if let preferred = Locale.preferredLanguages.first,
+           preferred.hasPrefix("ja") {
+            return "日本語"
+        }
+        if Locale.current.identifier.hasPrefix("ja") {
+            return "日本語"
+        }
+        return "English"
+    }
+
+    init() {
+        if UserDefaults.standard.object(forKey: "nativeLanguage") == nil {
+            let lang = Self.preferredDefaultLanguage()
+            UserDefaults.standard.set(lang, forKey: "nativeLanguage")
+            nativeLanguage = lang
+        }
+        loadUI(for: nativeLanguage)
+    }
 
     func setLanguage(_ lang: String) {
         nativeLanguage = lang
@@ -964,9 +1043,14 @@ class LanguageManager: ObservableObject {
     }
 
     func loadUI(for language: String) {
+        let isJapanese = language == "日本語" || language.localizedCaseInsensitiveContains("Japanese")
         if let data = UserDefaults.standard.data(forKey: "ui_strings_v5_\(language)"),
            let cached = try? JSONDecoder().decode(UIStrings.self, from: data) {
             self.ui = cached; return
+        }
+        if isJapanese {
+            self.ui = .defaultJapanese()
+            return
         }
         self.ui = .defaultEnglish()
         if language.lowercased().contains("english") { return }
@@ -1050,7 +1134,7 @@ struct OnboardingView: View {
     @ObservedObject var langManager: LanguageManager
     @Binding var englishLevelIndex: Int
     @AppStorage("hasCompletedOnboarding") var hasCompletedOnboarding = false
-    @State private var currentStep = 0
+    @State private var currentStep: Int = UIScreenshotMode.active?.onboardingStep ?? 0
 
     var body: some View {
         ZStack {
@@ -1157,7 +1241,14 @@ struct OnboardingView: View {
                 }
             }
         }
+        .onAppear {
+            // スクショ用: 翻訳完了の副作用で step が進まないよう固定
+            if let step = UIScreenshotMode.active?.onboardingStep {
+                currentStep = step
+            }
+        }
         .onChange(of: langManager.isTranslating) { oldValue, newValue in
+            if UIScreenshotMode.active != nil { return }
             if !newValue && currentStep == 0 { withAnimation { currentStep = 1 } }
         }
     }
@@ -1822,6 +1913,7 @@ struct ContentView: View {
     @State private var showingSettings = false
     @State private var showingExplanation = false
     @State private var showingFavorites = false
+    @State private var showingTicketStore = false
     @State private var activeAlert: ActiveAlert?
     
     @State private var currentQuoteForAI = ""
@@ -1866,6 +1958,39 @@ struct ContentView: View {
         .onAppear {
             ticketManager.checkDailyReset()
             _ = QuoteDatabase.shared
+
+            if let mode = UIScreenshotMode.active {
+                // 言語画面では setLanguage しない（翻訳完了 onChange で step が進むのを防ぐ）
+                if mode != .language {
+                    langManager.setLanguage("日本語")
+                }
+                switch mode {
+                case .home:
+                    quoteDictToForceDisplay = [
+                        "quote": "幸福とは、幸福をさがしていることに気がついていないことである。",
+                        "title": "インディアナ",
+                        "author": "ジョルジュ・サンド",
+                        "skipRoulette": true
+                    ]
+                case .home_en:
+                    quoteDictToForceDisplay = [
+                        "quote": "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+                        "title": "Pride and Prejudice",
+                        "author": "Jane Austen",
+                        "skipRoulette": true
+                    ]
+                case .settings:
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        showingSettings = true
+                    }
+                case .tickets:
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        showingTicketStore = true
+                    }
+                default:
+                    break
+                }
+            }
             
             UIApplication.shared.connectedScenes
                 .compactMap { $0 as? UIWindowScene }
@@ -1884,6 +2009,11 @@ struct ContentView: View {
         .onReceive(NotificationCenter.default.publisher(for: .closeSettings)) { _ in showingSettings = false }
         .fullScreenCover(isPresented: Binding(get: { !hasCompletedOnboarding }, set: { _ in })) { OnboardingView(langManager: langManager, englishLevelIndex: $englishLevelIndex) }
         .sheet(isPresented: $showingSettings) { SettingsView(langManager: langManager, englishLevelIndex: $englishLevelIndex) }
+        .sheet(isPresented: $showingTicketStore) {
+            NavigationView {
+                TicketStoreView(langManager: langManager)
+            }
+        }
         .sheet(isPresented: $showingExplanation) { ExplanationView(quote: $currentQuoteForAI, langManager: langManager, englishLevelIndex: $englishLevelIndex) }
         .sheet(isPresented: $showingFavorites) { FavoritesView(langManager: langManager, currentQuoteForAI: $currentQuoteForAI, showingExplanation: $showingExplanation) }
         .translationPresentation(isPresented: $showNativeTranslation, text: wordToTranslate)
@@ -2419,13 +2549,51 @@ struct WebView: UIViewRepresentable {
             preWarmJS += "for(let i=0; i<15; i++) { tempD.innerHTML = 'warmup ' + i; tempD.offsetHeight; } "
             preWarmJS += "tempD.innerHTML = ''; tempD.style.opacity = origOpacity; } } catch(e) {}"
             
-            webView.evaluateJavaScript(preWarmJS, completionHandler: nil)
+            // スクショ時は preWarm で quote-text を空にしない
+            if UIScreenshotMode.active == nil {
+                webView.evaluateJavaScript(preWarmJS, completionHandler: nil)
+            }
             
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-                self.isReadyToSwipe = true
+            // App Store スクショ: HTML 準備後に決め打ち引用を載せる（複数回リトライ）
+            if let mode = UIScreenshotMode.active {
+                let dict: [String: Any]?
+                switch mode {
+                case .home:
+                    dict = [
+                        "quote": "幸福とは、幸福をさがしていることに気がついていないことである。",
+                        "title": "インディアナ",
+                        "author": "ジョルジュ・サンド",
+                        "skipRoulette": true
+                    ]
+                case .home_en:
+                    dict = [
+                        "quote": "It is a truth universally acknowledged, that a single man in possession of a good fortune, must be in want of a wife.",
+                        "title": "Pride and Prejudice",
+                        "author": "Jane Austen",
+                        "skipRoulette": true
+                    ]
+                default:
+                    dict = nil
+                }
+                if let dict {
+                    for delay in [0.3, 0.8, 1.5, 2.5] as [Double] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                            self.sendQuoteToJS(dict: dict)
+                        }
+                    }
+                }
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + (UIScreenshotMode.active != nil ? 0.4 : 1.5)) {
+                // スクショ中はスワイプで引用が上書きされないようロック
+                if UIScreenshotMode.active == nil {
+                    self.isReadyToSwipe = true
+                }
                 var revealJS = "var hideStyle = document.getElementById('startup-hide-style'); "
                 revealJS += "if (hideStyle) { hideStyle.remove(); } "
                 revealJS += "document.querySelectorAll('.ripple-circle, #swipe-guide').forEach(el => { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; });"
+                revealJS += "var qt = document.getElementById('quote-text'); if (qt) { qt.style.opacity = '1'; } "
+                revealJS += "var sa = document.getElementById('source-area'); if (sa) { sa.style.opacity = '1'; } "
                 
                 webView.evaluateJavaScript(revealJS, completionHandler: nil)
             }

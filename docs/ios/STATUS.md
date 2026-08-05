@@ -1,6 +1,6 @@
 # Literary Fragments iOS — Xcode 正本ステータス
 
-> **更新:** 2026-07-30  
+> **更新:** 2026-08-05  
 > **読み取り元:** `PocketFortune.xcodeproj` + `ContentView.swift`（IAP）  
 > **Xcode:** 26.6（Build 17F113）· SDK `iphoneos26.5`
 
@@ -12,8 +12,8 @@
 | ターゲット | `PocketFortune` |
 | スキーム | `LiteraryFragments` |
 | Bundle ID（iphoneos） | `jp.lagado.pocketfortune` |
-| Marketing | **1.0.6** |
-| Build | **7**（`CURRENT_PROJECT_VERSION`） |
+| Marketing | **1.0.7** |
+| Build | **8**（`CURRENT_PROJECT_VERSION`） |
 | Deployment | **iOS 26.4** |
 | Team | `Q82QB32AZ8` |
 | 署名 | Automatic |
@@ -43,10 +43,10 @@ FragmentsApp/
 - 左右スワイプは **どちらも新規ランダム**（履歴めくりなし）· `ContentView.swift` + `main.js`
 - 設定のプライバシーリンクは `https://lagado.jp/fragments/privacy.php`
 - チケット購入導線の絵文字ラベルを整理（`buyButton ›`）
-- **IAP（余裕多め · 2026-07-30）:** `ticket100` / `ticket500` / `ticket1000` · 目標価格 **¥300 / ¥900 / ¥1,500**
+- **日本語版（2026-08-05）:** 端末が日本語なら初回UIは日本語（`defaultJapanese`）· ASC 貼り付け文は [`APP_STORE_JA.md`](APP_STORE_JA.md)
   - UI: 常に3段表示（StoreKit 未取得でも目安価格）· バッジ「人気」「お得」· ボタンは青統一
   - ASC: `ticket500` **作成済** · 価格設定（¥300 / ¥900 / ¥1,500）と旧 `ticket10000` 販売停止が残
-  - Android も同 ID（`TicketLicenseManager` · 1.0.4）
+  - Android も同 ID（`TicketLicenseManager`）· **1.0.5** で日本語初回既定（`LanguagePrefs`）· Play 文は [`../android/PLAY_STORE_JA.md`](../android/PLAY_STORE_JA.md)
 
 ## 関連
 
