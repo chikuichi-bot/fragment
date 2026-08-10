@@ -12,8 +12,8 @@
 | ターゲット | `PocketFortune` |
 | スキーム | `LiteraryFragments` |
 | Bundle ID（iphoneos） | `jp.lagado.pocketfortune` |
-| Marketing | **1.0.7** |
-| Build | **8**（`CURRENT_PROJECT_VERSION`） |
+| Marketing | **1.0.8** |
+| Build | **9**（`CURRENT_PROJECT_VERSION`） |
 | Deployment | **iOS 26.4** |
 | Team | `Q82QB32AZ8` |
 | 署名 | Automatic |

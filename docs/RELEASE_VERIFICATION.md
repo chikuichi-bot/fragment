@@ -20,8 +20,8 @@
 | `CODE_SIGN_STYLE` | Automatic |
 | `DEVELOPMENT_TEAM` | `Q82QB32AZ8` |
 | `PRODUCT_BUNDLE_IDENTIFIER`（iphoneos） | `jp.lagado.pocketfortune` |
-| `MARKETING_VERSION` | **1.0.7** |
-| `CURRENT_PROJECT_VERSION` | **8** |
+| `MARKETING_VERSION` | **1.0.8** |
+| `CURRENT_PROJECT_VERSION` | **9** |
 | `IPHONEOS_DEPLOYMENT_TARGET` | **26.4**（実機・TestFlight はこの OS 以上が必要） |
 | `ITSAppUsesNonExemptEncryption` | **NO** |
 | SDK | `iphoneos26.5`（Xcode 26.6 / 17F113） |
