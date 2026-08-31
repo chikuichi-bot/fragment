@@ -47,6 +47,7 @@ class ExplanationActivity : AppCompatActivity() {
 
     private var swipeStartY = 0f
     private var isAnimatingOut = false
+    private var uiCopy: SettingsCopy = SettingsCopy.english()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,6 +80,7 @@ class ExplanationActivity : AppCompatActivity() {
         btnSend = findViewById(R.id.btnSend)
         textTicketInfo = findViewById(R.id.textTicketInfo)
 
+        applyExplanationCopy()
         applyDarkModeColors()
         updateTicketUI()
 
@@ -100,12 +102,26 @@ class ExplanationActivity : AppCompatActivity() {
                     requestGemini(isInitial = false, userMessage = text)
                     updateTicketUI()
                 } else {
-                    Toast.makeText(this, "チケットが不足しています", Toast.LENGTH_LONG).show()
+                    Toast.makeText(this, uiCopy.outOfTickets, Toast.LENGTH_LONG).show()
                 }
             }
         }
 
         loadInitialData()
+    }
+
+    /** iOS UIStrings 同型（同梱 assets / 内蔵から即時） */
+    private fun applyExplanationCopy() {
+        val lang = LanguagePrefs.getNativeLanguage(this)
+        uiCopy = SettingsCopy.resolveSync(this, lang)
+        paintExplanationCopy(uiCopy)
+    }
+
+    private fun paintExplanationCopy(c: SettingsCopy) {
+        findViewById<Button>(R.id.btnBack).text = c.close
+        findViewById<TextView>(R.id.textExplanationTitle).text = c.aiExplanationTitle
+        findViewById<TextView>(R.id.textGenerating).text = c.generatingText
+        findViewById<Button>(R.id.btnSend).text = c.send
     }
 
     private fun closeScreen() {
@@ -212,12 +228,13 @@ class ExplanationActivity : AppCompatActivity() {
         try {
             val free = TicketManager.getFreeTickets(this)
             val paid = TicketManager.getPaidTickets(this)
+            val c = uiCopy
             if (free > 0) {
-                textTicketInfo.text = "無料枠: 残り $free 回"
-                editInput.hint = "質問を入力... (無料)"
+                textTicketInfo.text = c.freeLeftFmt.format(free)
+                editInput.hint = c.askHintFree.format(free)
             } else {
-                textTicketInfo.text = "所有チケット: $paid 枚"
-                editInput.hint = "質問を入力... (チケット消費)"
+                textTicketInfo.text = c.paidLeftFmt.format(paid)
+                editInput.hint = c.askHintPaid.format(paid)
             }
         } catch (e: Exception) { e.printStackTrace() }
     }
@@ -241,7 +258,11 @@ class ExplanationActivity : AppCompatActivity() {
                     updateTicketUI()
                     requestGemini(isInitial = true, userMessage = "")
                 } else {
-                    Toast.makeText(this, "初回解説のためのチケットが不足しています", Toast.LENGTH_LONG).show()
+                    Toast.makeText(
+                        this,
+                        uiCopy.outOfTicketsInitial,
+                        Toast.LENGTH_LONG
+                    ).show()
                     closeScreen()
                 }
             }
@@ -290,34 +311,17 @@ class ExplanationActivity : AppCompatActivity() {
             try {
                 val prefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
                 val levelIndex = prefs.getInt("englishLevelIndex", 1)
-                val jpLevels = listOf(
-                    "中学英語の基礎（英検3〜4級程度）を前提に、複雑な文法用語は避け、基本的な構文（SVOなど）や基礎単語をわかりやすくやさしい言葉で解説してください。",
-                    "高校英語（英検準2〜2級、大学受験レベル）を前提に、関係詞、分詞構文、仮定法などの重要文法を指摘し、文の構造を論理的に解説してください。",
-                    "大学生・教養レベル（英検準1級以上）を前提に、文学的な比喩やニュアンス、文化的背景、抽象的な語彙の深掘りを含めて、よりアカデミックで高度な解説を行ってください。",
-                    "ビジネスパーソンを前提に、この表現や含まれる単語が実際のビジネスシーン（メール、会議、交渉など）でどう活かせるか、フォーマル度やプロフェッショナルな言い回しに焦点を当てて解説してください。"
-                )
-                val specificInstruction = jpLevels[levelIndex.coerceIn(0, jpLevels.size - 1)]
+                val targetLang = LanguagePrefs.getNativeLanguage(this@ExplanationActivity)
+                val isJapanese = LanguagePrefs.isJapaneseLanguage(targetLang)
 
                 val contentsArray = JSONArray()
 
                 if (isInitial) {
-                    var initialPrompt = "あなたはプロの英語教師であり、文学コンシェルジュでもあります。客観的かつ簡潔に出力してください。\n"
-                    initialPrompt += "【重要】挨拶、前置き、結びの言葉は一切不要です。いきなり「【作品と作家】」から出力を開始してください。Markdown記号は使用せず、プレーンテキストで見やすく整形してください。\n\n"
-                    initialPrompt += "対象読者のレベルと解説方針：\n$specificInstruction\n\n"
-                    initialPrompt += "【文章】 \"$targetQuote\"\n\n"
-                    initialPrompt += "初回解説時は以下の6つの角度から出力してください。\n"
-                    initialPrompt += "1. 【作品と作家】\n2. 【和訳】\n3. 【意訳】\n4. 【語彙・文法】\n5. 【ニュアンス】\n6. 【実践・応用】"
-
+                    val initialPrompt = buildInitialGeminiPrompt(targetLang, isJapanese, levelIndex)
                     val initParts = JSONArray().put(JSONObject().put("text", initialPrompt))
                     contentsArray.put(JSONObject().put("role", "user").put("parts", initParts))
                 } else {
-                    var initialPrompt = "あなたはプロの英語教師であり、文学コンシェルジュでもあります。客観的かつ簡潔に出力してください。\n"
-                    initialPrompt += "【重要】挨拶、前置き、結びの言葉は一切不要です。いきなり「【作品と作家】」から出力を開始してください。Markdown記号は使用せず、プレーンテキストで見やすく整形してください。\n\n"
-                    initialPrompt += "対象読者のレベルと解説方針：\n$specificInstruction\n\n"
-                    initialPrompt += "【文章】 \"$targetQuote\"\n\n"
-                    initialPrompt += "初回解説時は以下の6つの角度から出力してください。\n"
-                    initialPrompt += "1. 【作品と作家】\n2. 【和訳】\n3. 【意訳】\n4. 【語彙・文法】\n5. 【ニュアンス】\n6. 【実践・応用】"
-
+                    val initialPrompt = buildInitialGeminiPrompt(targetLang, isJapanese, levelIndex)
                     val initParts = JSONArray().put(JSONObject().put("text", initialPrompt))
                     contentsArray.put(JSONObject().put("role", "user").put("parts", initParts))
 
@@ -328,8 +332,13 @@ class ExplanationActivity : AppCompatActivity() {
                         contentsArray.put(JSONObject().put("role", role).put("parts", parts))
                     }
 
-                    val followUpPrompt = "【追加の質問】: $userMessage\n\n" +
+                    val followUpPrompt = if (isJapanese) {
+                        "【追加の質問】: $userMessage\n\n" +
                             "上記の質問にのみ直接答えてください。初回の全体解説（作品情報、和訳、語彙など）は絶対に繰り返さないでください。"
+                    } else {
+                        "[Follow-up question]: $userMessage\n\n" +
+                            "Answer only this question directly. Do NOT repeat the full initial explanation. Respond entirely in $targetLang."
+                    }
 
                     val newParts = JSONArray().put(JSONObject().put("text", followUpPrompt))
                     contentsArray.put(JSONObject().put("role", "user").put("parts", newParts))
@@ -368,21 +377,72 @@ class ExplanationActivity : AppCompatActivity() {
                         } catch (e: Exception) { e.printStackTrace() }
 
                     } else {
-                        addMessage(ChatMessage(false, "AIからの応答を解析できませんでした。"))
+                        addMessage(ChatMessage(false, uiCopy.parseError))
                         TicketManager.refundFreeTicket(this@ExplanationActivity)
                     }
                 } else {
-                    addMessage(ChatMessage(false, "通信エラー: ${connection.responseCode}"))
+                    val net = if (isJapanese) "通信エラー: ${connection.responseCode}" else "Network Error: ${connection.responseCode}"
+                    addMessage(ChatMessage(false, net))
                     TicketManager.refundFreeTicket(this@ExplanationActivity)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
-                addMessage(ChatMessage(false, "ネットワークエラーが発生しました。"))
+                addMessage(ChatMessage(false, uiCopy.networkError))
                 TicketManager.refundFreeTicket(this@ExplanationActivity)
             } finally {
                 setLoading(false)
             }
         }.start()
+    }
+
+    /** iOS ContentView.requestGemini の初回プロンプトと同型 */
+    private fun buildInitialGeminiPrompt(targetLang: String, isJapanese: Boolean, levelIndex: Int): String {
+        val idx = levelIndex.coerceIn(0, 3)
+        return if (isJapanese) {
+            val jpLevels = listOf(
+                "中学英語の基礎（英検3〜4級程度）を前提に、複雑な文法用語は避け、基本的な構文（SVOなど）や基礎単語をわかりやすくやさしい言葉で解説してください。",
+                "高校英語（英検準2〜2級、大学受験レベル）を前提に、関係詞、分詞構文、仮定法などの重要文法を指摘し、文の構造を論理的に解説してください。",
+                "大学生・教養レベル（英検準1級以上）を前提に、文学的な比喩やニュアンス、文化的背景、抽象的な語彙の深掘りを含めて、よりアカデミックで高度な解説を行ってください。",
+                "ビジネスパーソンを前提に、この表現や含まれる単語が実際のビジネスシーン（メール、会議、交渉など）でどう活かせるか、フォーマル度やプロフェッショナルな言い回しに焦点を当てて解説してください。",
+            )
+            buildString {
+                append("あなたはプロの英語教師であり、文学コンシェルジュでもあります。客観的かつ簡潔に出力してください。\n")
+                append("【重要】挨拶、前置き、結びの言葉は一切不要です。いきなり「【作品と作家】」から出力を開始してください。Markdown記号は使用せず、プレーンテキストで見やすく整形してください。\n\n")
+                append("対象読者のレベルと解説方針：\n")
+                append(jpLevels[idx])
+                append("\n\n【文章】 \"$targetQuote\"\n\n")
+                append("初回解説時は以下の6つの角度から出力してください。\n")
+                append("1. 【作品と作家】 (この文章の出典作品、著者名、およびその簡単な紹介や時代背景)\n")
+                append("2. 【和訳】 (直訳に近い正確な意味)\n")
+                append("3. 【意訳】 (自然で美しい、文学的な日本語表現)\n")
+                append("4. 【語彙・文法】 (対象レベルに合わせた重要単語や構文の解説)\n")
+                append("5. 【ニュアンス】 (言葉の裏にある感情や背景)\n")
+                append("6. 【実践・応用】 (対象レベルに合わせた、短い英語の例文を1つ添える)")
+            }
+        } else {
+            val enLevels = listOf(
+                "Explain gently using basic grammar and simple words, suitable for middle school level beginners.",
+                "Point out important grammar points and logically explain the sentence structure, suitable for high school/college prep level.",
+                "Provide advanced explanations including literary metaphors, nuances, and cultural background, suitable for college level.",
+                "Focus on the formality and how to use these expressions in practical business situations.",
+            )
+            buildString {
+                append("You are a professional language teacher and literary concierge. Output objectively and concisely.\n")
+                append("[IMPORTANT] Do NOT include any greetings, introductions, or closing remarks. Start your output directly from '[Author & Work]'. Do not use Markdown symbols like *, _, or #. Format it as clean plain text.\n\n")
+                append("Target audience level and explanation policy:\n")
+                append(enLevels[idx])
+                append("\n\nTarget Language for Explanation: $targetLang\n")
+                append("(You MUST output your entire response in $targetLang)\n\n")
+                append("[Quote] \"$targetQuote\"\n\n")
+                append("For this initial explanation, please output from the following 6 angles:\n")
+                append("1. [Author & Work] (Source work, author name, brief introduction, and historical background)\n")
+                append("2. [Literal Translation] (Accurate meaning close to literal translation)\n")
+                append("3. [Literary Translation] (Natural, beautiful, and literary translation)\n")
+                append("4. [Vocabulary & Grammar] (Explanation of important words and syntax tailored to the target level)\n")
+                append("5. [Nuance] (Emotions and background behind the words)\n")
+                append("6. [Practical Usage] (Provide one short example sentence tailored to the target level)")
+            }
+        }
     }
 
     inner class ChatAdapter : RecyclerView.Adapter<ChatAdapter.MessageViewHolder>() {

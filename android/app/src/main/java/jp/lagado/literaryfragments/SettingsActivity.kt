@@ -50,7 +50,10 @@ class SettingsActivity : AppCompatActivity() {
     private var atmosphereKeywords = ""
     private var atmospherePlaceKeys: List<String> = emptyList()
     private var isInitialAi = true
+    private var isInitialLanguage = true
     private var pendingSenseAfterPermission = false
+    private var settingsCopy: SettingsCopy = SettingsCopy.japanese()
+    private var senseIdleLabel: String = "今の気配を読み取る"
 
     private var swipeStartY = 0f
     private var isAnimatingOut = false
@@ -72,6 +75,7 @@ class SettingsActivity : AppCompatActivity() {
         findViewById<Button>(R.id.btnDone).setOnClickListener { closeScreen() }
 
         applyDarkModeColors()
+        applySettingsCopy()
 
         val prefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
 
@@ -99,7 +103,7 @@ class SettingsActivity : AppCompatActivity() {
         val textAtmosphereResult = findViewById<TextView>(R.id.textAtmosphereResult)
 
         btnSenseMoment.setOnClickListener {
-            textSense.text = "読み取り中..."
+            textSense.text = settingsCopy.sensing
             textSense.setTextColor(Color.GRAY)
             progressSense.visibility = View.VISIBLE
             btnSenseMoment.isEnabled = false
@@ -244,19 +248,125 @@ class SettingsActivity : AppCompatActivity() {
             }
         }
 
+        setupLanguageSection()
+        setupAiLevelSection()
+    }
+
+    /** iOS SettingsView「Language / 言語」同型 */
+    private fun setupLanguageSection() {
+        findViewById<TextView>(R.id.textLanguageSection).text = LanguagePrefs.languageSectionTitle()
+        findViewById<TextView>(R.id.textLanguageTitle).text = LanguagePrefs.languageSectionTitle()
+        findViewById<TextView>(R.id.textLanguageCaption).text = LanguagePrefs.languageSectionCaption()
+        findViewById<TextView>(R.id.textLanguageFooter).text = LanguagePrefs.languageSectionFooter()
+
+        val spinner = findViewById<Spinner>(R.id.spinnerLanguage)
+        val languages = LanguagePrefs.allLanguages.toMutableList()
+        val current = LanguagePrefs.getNativeLanguage(this)
+        if (current !in languages) {
+            languages.add(0, current)
+        }
+        spinner.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, languages)
+        val index = languages.indexOf(current).coerceAtLeast(0)
+        spinner.setSelection(index)
+
+        spinner.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
+                if (isInitialLanguage) {
+                    isInitialLanguage = false
+                    return
+                }
+                val selected = languages[pos]
+                LanguagePrefs.setNativeLanguage(this@SettingsActivity, selected)
+                applySettingsCopy(selected)
+                Toast.makeText(
+                    this@SettingsActivity,
+                    settingsCopy.languageChanged.format(selected),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
+            override fun onNothingSelected(p0: AdapterView<*>?) {}
+        }
+    }
+
+    /**
+     * 設定文言を適用。主要言語は assets 同梱のため即時（ネット待ちなし）。
+     */
+    private fun applySettingsCopy(language: String = LanguagePrefs.getNativeLanguage(this)) {
+        settingsCopy = SettingsCopy.resolveSync(this, language)
+        paintSettingsCopy(settingsCopy)
+        setupAiLevelSection()
+    }
+
+    private fun paintSettingsCopy(c: SettingsCopy) {
+        senseIdleLabel = c.senseMoment
+        findViewById<TextView>(R.id.textSettingsTitle).text = c.settingsTitle
+        findViewById<Button>(R.id.btnDone).text = c.done
+        findViewById<TextView>(R.id.textDrawSection).text = c.drawSection
+        findViewById<TextView>(R.id.textDrawRandom).text = c.drawRandom
+        val textSense = findViewById<TextView>(R.id.textSense)
+        if (findViewById<ProgressBar>(R.id.progressSense).visibility != View.VISIBLE) {
+            textSense.text = c.senseMoment
+        }
+        findViewById<TextView>(R.id.textSearchSection).text = c.searchSection
+        findViewById<TextView>(R.id.tabScopeAll).text = c.scopeAll
+        findViewById<TextView>(R.id.tabScopeQuote).text = c.scopeQuote
+        findViewById<TextView>(R.id.tabScopeAuthor).text = c.scopeAuthor
+        findViewById<TextView>(R.id.tabScopeTitle).text = c.scopeTitle
+        findViewById<EditText>(R.id.editSearch).hint = c.searchHint
+        findViewById<Button>(R.id.btnSearch).text = c.search
+        findViewById<TextView>(R.id.textAppearanceSection).text = c.appearance
+        findViewById<TextView>(R.id.tabThemeSystem).text = c.themeSystem
+        findViewById<TextView>(R.id.tabThemeLight).text = c.themeLight
+        findViewById<TextView>(R.id.tabThemeDark).text = c.themeDark
+        findViewById<TextView>(R.id.textLengthSection).text = c.quoteLength
+        findViewById<TextView>(R.id.tabLenShort).text = c.lengthShort
+        findViewById<TextView>(R.id.tabLenLong).text = c.lengthLong
+        findViewById<TextView>(R.id.textAiSection).text = c.aiLevelTitle
+        findViewById<TextView>(R.id.textTicketSection).text = c.ticketStore
+        findViewById<TextView>(R.id.textFreeTodayLabel).text = c.freeToday
+        findViewById<TextView>(R.id.textPaidTicketsLabel).text = c.paidTickets
+        findViewById<TextView>(R.id.textGoToStore).text = c.goToStore
+        findViewById<TextView>(R.id.textPrivacy).text = c.privacy
+        findViewById<TextView>(R.id.textAtmosphereTitle).text = c.atmosphereTitle
+        findViewById<TextView>(R.id.textAtmosphereAsk).text = c.atmosphereAsk
+        findViewById<Button>(R.id.btnCancelAtmosphere).text = c.cancel
+        val btnDraw = findViewById<Button>(R.id.btnDrawAtmosphere)
+        if (findViewById<ProgressBar>(R.id.progressDrawAtmosphere).visibility != View.VISIBLE) {
+            btnDraw.text = c.drawQuote
+        }
+        refreshTicketCounts()
+    }
+
+    private fun refreshTicketCounts() {
+        val free = TicketManager.getFreeTickets(this)
+        val paid = TicketManager.getPaidTickets(this)
+        val c = settingsCopy
+        findViewById<TextView>(R.id.textFreeTickets).text =
+            if (c.freeUnit.isEmpty()) "$free" else "$free ${c.freeUnit}"
+        findViewById<TextView>(R.id.textPaidTickets).text =
+            if (c.paidUnit.isEmpty()) "$paid" else "$paid ${c.paidUnit}"
+    }
+
+    private fun setupAiLevelSection() {
         val spinnerAiLevel = findViewById<Spinner>(R.id.spinnerAiLevel)
-        // iOS UIStrings.defaultJapanese と同型（英語併記を外す）
-        val aiLevels = LanguagePrefs.aiLevelLabelsJa
-        val aiDescs = LanguagePrefs.aiLevelDescsJa
+        val aiLevels = settingsCopy.aiLevelLabels()
+        val aiDescs = settingsCopy.aiLevelDescs()
         spinnerAiLevel.adapter = ArrayAdapter(this, android.R.layout.simple_spinner_dropdown_item, aiLevels)
 
-        val savedAiLevel = prefs.getInt("englishLevelIndex", 1)
+        val prefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
+        val savedAiLevel = prefs.getInt("englishLevelIndex", 1).coerceIn(0, aiLevels.lastIndex)
+        isInitialAi = true
         spinnerAiLevel.setSelection(savedAiLevel)
 
         val textAiLevelDesc = findViewById<TextView>(R.id.textAiLevelDesc)
+        textAiLevelDesc.text = aiDescs[savedAiLevel]
         spinnerAiLevel.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
             override fun onItemSelected(p0: AdapterView<*>?, p1: View?, pos: Int, p3: Long) {
-                if (isInitialAi) { isInitialAi = false; textAiLevelDesc.text = aiDescs[savedAiLevel]; return }
+                if (isInitialAi) {
+                    isInitialAi = false
+                    textAiLevelDesc.text = aiDescs[savedAiLevel]
+                    return
+                }
                 prefs.edit().putInt("englishLevelIndex", pos).apply()
                 textAiLevelDesc.text = aiDescs[pos]
             }
@@ -306,7 +416,7 @@ class SettingsActivity : AppCompatActivity() {
                     val overlayAtmosphere = findViewById<FrameLayout>(R.id.overlayAtmosphere)
                     val textAtmosphereResult = findViewById<TextView>(R.id.textAtmosphereResult)
 
-                    textSense.text = "今の気配を読み取る"
+                    textSense.text = senseIdleLabel
 
                     val currentPrefs = getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE)
                     val theme = currentPrefs.getInt("themePreference", 0)
@@ -428,7 +538,7 @@ class SettingsActivity : AppCompatActivity() {
             findViewById<LinearLayout>(R.id.mainBackground)?.setBackgroundColor(bgColor)
             findViewById<LinearLayout>(R.id.headerBackground)?.setBackgroundColor(cardColor)
 
-            val cards = listOf(R.id.cardDraw, R.id.cardSearch, R.id.cardAi, R.id.cardTicket, R.id.cardPrivacy)
+            val cards = listOf(R.id.cardDraw, R.id.cardSearch, R.id.cardAi, R.id.cardLanguage, R.id.cardTicket, R.id.cardPrivacy)
             for (id in cards) {
                 findViewById<LinearLayout>(id)?.apply {
                     background = GradientDrawable().apply { setColor(cardColor); cornerRadius = 28f } // 洗練された角丸
@@ -459,8 +569,7 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        findViewById<TextView>(R.id.textFreeTickets).text = "${TicketManager.getFreeTickets(this)} 回"
-        findViewById<TextView>(R.id.textPaidTickets).text = "${TicketManager.getPaidTickets(this)} 枚"
+        refreshTicketCounts()
     }
 
     private fun getModeStr() = if (getSharedPreferences("PocketFortunePrefs", Context.MODE_PRIVATE).getInt("quoteLengthMode", 0) == 1) "long" else "short"

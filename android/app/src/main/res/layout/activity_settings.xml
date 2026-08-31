@@ -20,6 +20,7 @@
             android:background="#FFFFFF"
             android:elevation="1dp">
             <TextView
+                android:id="@+id/textSettingsTitle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -53,12 +54,12 @@
                 android:orientation="vertical"
                 android:paddingBottom="40dp">
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="言葉を引く" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/textDrawSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="言葉を引く" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
                 <LinearLayout android:id="@+id/cardDraw" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="24dp">
 
                     <LinearLayout android:id="@+id/btnDrawRandom" android:layout_width="match_parent" android:layout_height="50dp" android:gravity="center_vertical" android:paddingHorizontal="16dp" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
                         <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="🎲" android:textSize="18sp" android:layout_marginEnd="12dp"/>
-                        <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="無作為に引く" android:textColor="#333333" android:textSize="16sp"/>
+                        <TextView android:id="@+id/textDrawRandom" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="無作為に引く" android:textColor="#333333" android:textSize="16sp"/>
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginStart="46dp"/>
 
@@ -69,7 +70,7 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="言葉を探す" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/textSearchSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="言葉を探す" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
                 <LinearLayout android:id="@+id/cardSearch" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="24dp" android:padding="16dp">
 
                     <LinearLayout android:id="@+id/groupScope" android:layout_width="match_parent" android:layout_height="32dp" android:orientation="horizontal" android:background="#E2E2E7" android:padding="2dp" android:layout_marginBottom="12dp">
@@ -87,37 +88,106 @@
                     </LinearLayout>
                 </LinearLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="外観 (テーマ)" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/textAppearanceSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="外観 (テーマ)" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
                 <LinearLayout android:id="@+id/groupTheme" android:layout_width="match_parent" android:layout_height="40dp" android:orientation="horizontal" android:background="#E2E2E7" android:padding="2dp" android:layout_marginBottom="24dp">
                     <TextView android:id="@+id/tabThemeSystem" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="システム" android:gravity="center" android:textSize="14sp" android:textColor="#333"/>
                     <TextView android:id="@+id/tabThemeLight" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="ライト" android:gravity="center" android:textSize="14sp" android:textColor="#333"/>
                     <TextView android:id="@+id/tabThemeDark" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="ダーク" android:gravity="center" android:textSize="14sp" android:textColor="#333"/>
                 </LinearLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="文章の長さ" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/textLengthSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="文章の長さ" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
                 <LinearLayout android:id="@+id/groupLength" android:layout_width="match_parent" android:layout_height="40dp" android:orientation="horizontal" android:layout_marginBottom="24dp" android:background="#E2E2E7" android:padding="2dp">
                     <TextView android:id="@+id/tabLenShort" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="短文" android:gravity="center" android:textColor="#333" android:textSize="14sp"/>
                     <TextView android:id="@+id/tabLenLong" android:layout_width="0dp" android:layout_height="match_parent" android:layout_weight="1" android:text="長文" android:gravity="center" android:textColor="#333" android:textSize="14sp"/>
                 </LinearLayout>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI解説のレベル" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
+                <TextView android:id="@+id/textAiSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="AI解説のレベル" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
                 <LinearLayout android:id="@+id/cardAi" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:layout_marginBottom="24dp">
                     <Spinner android:id="@+id/spinnerAiLevel" android:layout_width="match_parent" android:layout_height="50dp" android:paddingHorizontal="8dp"/>
                 </LinearLayout>
                 <TextView android:id="@+id/textAiLevelDesc" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="..." android:textColor="#888888" android:textSize="12sp" android:layout_marginStart="8dp" android:layout_marginTop="-16dp" android:layout_marginBottom="24dp"/>
 
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="チケットストア" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
+                <!-- iOS SettingsView 同型: Language / 言語（英語 Language を常に残す） -->
+                <TextView
+                    android:id="@+id/textLanguageSection"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Language / 言語"
+                    android:textColor="#666666"
+                    android:textSize="13sp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="4dp"/>
+                <LinearLayout
+                    android:id="@+id/cardLanguage"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp">
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
+                        android:paddingHorizontal="4dp">
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="🌐"
+                            android:textSize="22sp"
+                            android:layout_marginEnd="12dp"/>
+                        <LinearLayout
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:orientation="vertical">
+                            <TextView
+                                android:id="@+id/textLanguageTitle"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="Language / 言語"
+                                android:textColor="#333333"
+                                android:textSize="16sp"
+                                android:textStyle="bold"/>
+                            <TextView
+                                android:id="@+id/textLanguageCaption"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:text="中文 · Español · English"
+                                android:textColor="#888888"
+                                android:textSize="11sp"
+                                android:layout_marginTop="2dp"/>
+                        </LinearLayout>
+                    </LinearLayout>
+                    <Spinner
+                        android:id="@+id/spinnerLanguage"
+                        android:layout_width="match_parent"
+                        android:layout_height="48dp"
+                        android:layout_marginTop="8dp"
+                        android:paddingHorizontal="4dp"/>
+                </LinearLayout>
+                <TextView
+                    android:id="@+id/textLanguageFooter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="If the UI is in the wrong language, tap here and choose yours."
+                    android:textColor="#888888"
+                    android:textSize="11sp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="24dp"/>
+
+                <TextView android:id="@+id/textTicketSection" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="チケットストア" android:textColor="#666666" android:textSize="13sp" android:layout_marginStart="8dp" android:layout_marginBottom="4dp"/>
                 <LinearLayout android:id="@+id/cardTicket" android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="vertical" android:padding="16dp" android:layout_marginBottom="24dp" android:clickable="true" android:focusable="true" android:background="?attr/selectableItemBackground">
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="本日の無料解説" android:textColor="#333333"/>
+                        <TextView android:id="@+id/textFreeTodayLabel" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="本日の無料解説" android:textColor="#333333"/>
                         <TextView android:id="@+id/textFreeTickets" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="3 回" android:textColor="#4CAF50" android:textStyle="bold"/>
                     </LinearLayout>
                     <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#EEEEEE" android:layout_marginVertical="12dp"/>
                     <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content" android:orientation="horizontal">
-                        <TextView android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="所有チケット" android:textColor="#333333"/>
+                        <TextView android:id="@+id/textPaidTicketsLabel" android:layout_width="0dp" android:layout_weight="1" android:layout_height="wrap_content" android:text="所有チケット" android:textColor="#333333"/>
                         <TextView android:id="@+id/textPaidTickets" android:layout_width="wrap_content" android:layout_height="wrap_content" android:text="0 枚" android:textStyle="bold" android:textColor="#333333"/>
                     </LinearLayout>
-                    <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ストアへ行く ›" android:textColor="#007AFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
+                    <TextView android:id="@+id/textGoToStore" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="ストアへ行く ›" android:textColor="#007AFF" android:textStyle="bold" android:layout_marginTop="16dp"/>
                 </LinearLayout>
 
                 <LinearLayout
@@ -170,7 +240,7 @@
             android:paddingTop="24dp"
             android:elevation="10dp">
 
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="今の気配" android:textStyle="bold" android:textSize="18sp" android:textColor="#333" android:gravity="center"/>
+            <TextView android:id="@+id/textAtmosphereTitle" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="今の気配" android:textStyle="bold" android:textSize="18sp" android:textColor="#333" android:gravity="center"/>
 
             <TextView
                 android:id="@+id/textAtmosphereResult"
@@ -184,7 +254,7 @@
                 android:layout_marginTop="16dp"
                 android:layout_marginBottom="16dp"/>
 
-            <TextView android:layout_width="match_parent" android:layout_height="wrap_content" android:text="この気配に重なる言葉を引きますか？" android:textSize="14sp" android:textColor="#888" android:gravity="center" android:layout_marginBottom="24dp"/>
+            <TextView android:id="@+id/textAtmosphereAsk" android:layout_width="match_parent" android:layout_height="wrap_content" android:text="この気配に重なる言葉を引きますか？" android:textSize="14sp" android:textColor="#888" android:gravity="center" android:layout_marginBottom="24dp"/>
 
             <View android:layout_width="match_parent" android:layout_height="1dp" android:background="#DDD"/>
 

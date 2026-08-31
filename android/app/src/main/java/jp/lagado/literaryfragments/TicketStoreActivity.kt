@@ -63,6 +63,7 @@ class TicketStoreActivity : AppCompatActivity() {
         val storeList = findViewById<LinearLayout>(R.id.storeList)
         storeList.removeAllViews()
         // iOS CatalogTicketPackRow 同型: 常に 100 / 500 / 1000 を出す
+        val isJa = LanguagePrefs.isJapanese(this)
         addStoreItem(
             storeList,
             TicketLicenseManager.PRODUCT_100,
@@ -75,14 +76,14 @@ class TicketStoreActivity : AppCompatActivity() {
             TicketLicenseManager.PRODUCT_500,
             500,
             licenseManager.displayPrice(TicketLicenseManager.PRODUCT_500),
-            "人気",
+            LanguagePrefs.storeBadge500(isJa),
         )
         addStoreItem(
             storeList,
             TicketLicenseManager.PRODUCT_1000,
             1000,
             licenseManager.displayPrice(TicketLicenseManager.PRODUCT_1000),
-            "お得",
+            LanguagePrefs.storeBadge1000(isJa),
         )
         val anyPlayProduct = listOf(
             TicketLicenseManager.PRODUCT_100,
@@ -91,7 +92,11 @@ class TicketStoreActivity : AppCompatActivity() {
         ).any { licenseManager.isProductAvailable(it) && !BuildConfig.DEBUG }
         if (!anyPlayProduct && !BuildConfig.DEBUG) {
             storeList.addView(TextView(this).apply {
-                text = "Play の商品がまだ反映されていません。価格は目安表示です。"
+                text = if (isJa) {
+                    "Play の商品がまだ反映されていません。価格は目安表示です。"
+                } else {
+                    "Play products are not available yet. Prices shown are estimates."
+                }
                 textSize = 11f
                 setTextColor(if (isDark) Color.parseColor("#9E9E9E") else Color.parseColor("#757575"))
                 setPadding(16, 12, 16, 8)

@@ -1,6 +1,6 @@
 # Literary Fragments iOS — Xcode 正本ステータス
 
-> **更新:** 2026-08-05  
+> **更新:** 2026-08-30  
 > **読み取り元:** `PocketFortune.xcodeproj` + `ContentView.swift`（IAP）  
 > **Xcode:** 26.6（Build 17F113）· SDK `iphoneos26.5`
 
@@ -12,8 +12,8 @@
 | ターゲット | `PocketFortune` |
 | スキーム | `LiteraryFragments` |
 | Bundle ID（iphoneos） | `jp.lagado.pocketfortune` |
-| Marketing | **1.0.8** |
-| Build | **9**（`CURRENT_PROJECT_VERSION`） |
+| Marketing | **1.1.4** |
+| Build | **12**（`CURRENT_PROJECT_VERSION`） |
 | Deployment | **iOS 26.4** |
 | Team | `Q82QB32AZ8` |
 | 署名 | Automatic |

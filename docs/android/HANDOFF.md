@@ -86,8 +86,8 @@ Fragments Android · 完了 80% · 残り 20%
 | Android `applicationId` | `jp.lagado.literaryfragments` |
 | iOS Bundle（Xcode） | `jp.lagado.pocketfortune`（表示名 Fragments） |
 | 表示名 | Literary Fragments / Fragments |
-| Android `versionName` / `versionCode` | `1.0.5` / `6`（日本語初回既定 · AIレベル表記） |
-| iOS 近況（Xcode 正本 · 2026-08-05） | Marketing **1.0.7** · Build **8** · 端末日本語なら初回UI日本語 · App Store ID `6760742804` · IAP 100/500/1000 |
+| Android `versionName` / `versionCode` | `1.0.7` / `8`（Language / 言語 · iOS 1.1.4 同型） |
+| iOS 近況（Xcode 正本 · 2026-08-30） | Marketing **1.1.4** · Build **12** · 設定「Language / 言語」· App Store ID `6760742804` · IAP 100/500/1000 |
 
 ### 課金プロダクト ID（iOS と揃える・消耗型）
 

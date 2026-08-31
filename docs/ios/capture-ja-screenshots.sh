@@ -58,6 +58,10 @@ ensure_booted() {
   exit 1
 }
 
+echo "Shutting down other simulators..."
+xcrun simctl shutdown all 2>/dev/null || true
+sleep 2
+
 ensure_booted
 
 echo "Building..."
@@ -121,13 +125,13 @@ capture() {
 }
 
 # home/home_en: WebView + 引用注入のため長め。settings/tickets: sheet 表示待ち。
-capture home       "01-quote.png"      15
-capture home_en    "02-quote-en.png"   15
+capture home       "01-quote.png"      22
+capture home_en    "02-quote-en.png"   18
 capture language   "03-language.png"   4
 capture welcome    "04-welcome.png"    4
-capture howto      "05-howto.png"      4
-capture settings   "06-settings.png"   6
-capture tickets    "07-tickets.png"    8
+capture howto      "05-howto.png"      6
+capture settings   "06-settings.png"   12
+capture tickets    "07-tickets.png"    14
 
 echo "Done. Output: $OUT"
 open "$OUT"

@@ -5,10 +5,10 @@
  * iOS / 共通: https://lagado.jp/fragments/privacy.php
  * 正本: deploy/privacy-android.php（ロリポップ public_html/fragments/ へアップロード）
  *
- * 同型: アボモン Android / そばメモ（From は info@lagado.jp · Reply-To のみ利用者）
+ * 同型: アボモン Android / そばメモ（受信は lagadolab@gmail.com · From は info@lagado.jp で SPF）
  */
-$to = "info@lagado.jp";
-// postmail と同じ受信箱。From も同一ドメイン（SPF）で届きやすくする。
+$to = "lagadolab@gmail.com";
+// From は lagado.jp（SPF）。Gmail アドレスを From にするとロリポップ経由で弾かれる。
 $from = "info@lagado.jp";
 $status_message = "";
 $status_ok = false;
@@ -91,7 +91,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
             $status_ok = true;
             $status_message = "お問い合わせを送信しました。ご連絡ありがとうございます。 / Thank you. Your message was sent.";
         } else {
-            $status_message = "送信に失敗しました。しばらくしてから再度お試しいただくか、直接メール（info@lagado.jp）へご連絡ください。 / Sending failed. Please try again or email info@lagado.jp.";
+            $status_message = "送信に失敗しました。しばらくしてから再度お試しいただくか、直接メール（lagadolab@gmail.com）へご連絡ください。 / Sending failed. Please try again or email lagadolab@gmail.com.";
         }
     }
 }
@@ -305,7 +305,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <p>不具合のご報告・ご質問・ご要望は、下のフォームからお送りください。直接メールでも受け付けています。</p>
                 <p>
                     制作: ラガード研究所 / Lagado Research Institute<br>
-                    メール: <a class="mail" href="mailto:info@lagado.jp">info@lagado.jp</a>
+                    メール: <a class="mail" href="mailto:lagadolab@gmail.com">lagadolab@gmail.com</a>
                 </p>
 
                 <?php if ($status_message !== ""): ?>
@@ -392,7 +392,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <p>本アプリは、必要に応じて本プライバシーポリシーを変更することがあります。重要な変更がある場合は、アプリ内または Google Play のストアページでお知らせいたします。</p>
 
                 <h2>9. お問い合わせ</h2>
-                <p>本アプリに関するお問い合わせは、<a href="#support">ページ上部のサポートフォーム</a>、または <a href="mailto:info@lagado.jp">info@lagado.jp</a> までご連絡ください。<br>
+                <p>本アプリに関するお問い合わせは、<a href="#support">ページ上部のサポートフォーム</a>、または <a href="mailto:lagadolab@gmail.com">lagadolab@gmail.com</a> までご連絡ください。<br>
                 制作: ラガード研究所 / Lagado Research Institute</p>
 
                 <p class="footer-note">制定日: 2026年7月26日<br>改定日: 2026年7月29日<br>対象: Android（Google Play）</p>
@@ -434,7 +434,7 @@ if ($_SERVER["REQUEST_METHOD"] === "POST") {
                 <p>This policy may be updated from time to time. Significant changes will be announced in the App or on its Google Play store listing.</p>
 
                 <h2>9. Contact</h2>
-                <p>Use the <a href="#support">support form above</a> or email <a href="mailto:info@lagado.jp">info@lagado.jp</a>.<br>
+                <p>Use the <a href="#support">support form above</a> or email <a href="mailto:lagadolab@gmail.com">lagadolab@gmail.com</a>.<br>
                 Presented by: Lagado Research Institute</p>
 
                 <p class="footer-note">Effective: July 26, 2026<br>Updated: July 29, 2026<br>Platform: Android (Google Play)</p>

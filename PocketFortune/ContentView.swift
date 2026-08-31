@@ -217,10 +217,28 @@ struct UIStrings: Codable {
     var quoteLengthTitle, lengthShort, lengthLong: String
     var ticketDesc: String
 
+    /// どの言語UIでも言語設定を探せるよう、英語 "Language" を残す
+    mutating func ensuringLanguageLabel(for language: String) {
+        if !nativeLanguageTitle.localizedCaseInsensitiveContains("Language") {
+            if language == "日本語" || language.localizedCaseInsensitiveContains("Japanese") {
+                nativeLanguageTitle = "Language / 言語"
+            } else if language.contains("中文") || language.localizedCaseInsensitiveContains("Chinese") {
+                nativeLanguageTitle = "Language / 中文"
+            } else if language.localizedCaseInsensitiveContains("Español") || language.localizedCaseInsensitiveContains("Spanish") {
+                nativeLanguageTitle = "Language / Español"
+            } else {
+                nativeLanguageTitle = "Language / \(nativeLanguageTitle)"
+            }
+        }
+        if !selectLanguage.localizedCaseInsensitiveContains("Language") {
+            selectLanguage = "Language / \(selectLanguage)"
+        }
+    }
+
     static func defaultEnglish() -> UIStrings {
         UIStrings(
             settingsTitle: "Settings",
-            nativeLanguageTitle: "Your Native Language",
+            nativeLanguageTitle: "Language",
             aiLevelTitle: "AI Explanation Level",
             done: "Done",
             ticketStore: "Ticket Store",
@@ -275,11 +293,11 @@ struct UIStrings: Codable {
     static func defaultJapanese() -> UIStrings {
         UIStrings(
             settingsTitle: "設定",
-            nativeLanguageTitle: "あなたの言語",
+            nativeLanguageTitle: "Language / 言語",
             aiLevelTitle: "AI解説のレベル",
             done: "完了",
             ticketStore: "チケットストア",
-            selectLanguage: "言語を選ぶ",
+            selectLanguage: "Language / 言語を選ぶ",
             stockTitle: "ストックした言葉",
             emptyStock: "まだストックがありません。",
             viewExplanation: "解説を見る",
@@ -1044,9 +1062,12 @@ class LanguageManager: ObservableObject {
 
     func loadUI(for language: String) {
         let isJapanese = language == "日本語" || language.localizedCaseInsensitiveContains("Japanese")
-        if let data = UserDefaults.standard.data(forKey: "ui_strings_v5_\(language)"),
-           let cached = try? JSONDecoder().decode(UIStrings.self, from: data) {
-            self.ui = cached; return
+        // v6: Language 併記（古い「母国語」キャッシュを破棄）
+        if let data = UserDefaults.standard.data(forKey: "ui_strings_v6_\(language)"),
+           var cached = try? JSONDecoder().decode(UIStrings.self, from: data) {
+            cached.ensuringLanguageLabel(for: language)
+            self.ui = cached
+            return
         }
         if isJapanese {
             self.ui = .defaultJapanese()
@@ -1073,9 +1094,12 @@ class LanguageManager: ObservableObject {
             prompt += "- 'Short' MUST be translated EXACTLY as '短文'.\n"
             prompt += "- 'Long' MUST be translated EXACTLY as '長文'.\n"
             prompt += "- 'A ticket to unlock AI explanations.' MUST be translated EXACTLY as 'AI解説を読むためのチケットです。'\n"
+            prompt += "- 'Your Native Language' / 'Language' MUST be translated EXACTLY as 'Language / 言語'. Always keep the English word Language.\n"
+            prompt += "- 'Select your language' MUST be translated EXACTLY as 'Language / 言語を選ぶ'.\n"
         }
+        prompt += "IMPORTANT for ALL languages: Keep the English word \"Language\" in nativeLanguageTitle (e.g. \"Language / 言語\", \"Language / 中文\", \"Language / Español\") so users can always find the language setting.\n"
         prompt += "Return ONLY a valid JSON object. Do NOT include markdown formatting or backticks.\n"
-        prompt += "{ \"settingsTitle\": \"Settings\", \"nativeLanguageTitle\": \"Your Native Language\", \"aiLevelTitle\": \"AI Explanation Level\", \"done\": \"Done\", \"ticketStore\": \"Ticket Store\", \"selectLanguage\": \"Select your language\", \"stockTitle\": \"Stocked Quotes\", \"emptyStock\": \"No quotes stocked yet.\", \"viewExplanation\": \"View Explanation\", \"close\": \"Close\", \"aiExplanationTitle\": \"AI Explanation\", \"generatingText\": \"Generating...\\nPlease wait⏳\", \"outOfTicketsTitle\": \"Out of Tickets\", \"outOfTicketsMsg\": \"You need tickets for AI Explanation.\", \"buyButton\": \"Go to Store\", \"cancel\": \"Cancel\", \"status\": \"Status\", \"remainingTickets\": \"Tickets\", \"level1\": \"Middle School\", \"level2\": \"High School\", \"level3\": \"College\", \"level4\": \"Business\", \"level1Desc\": \"Avoids difficult grammar terms and explains basic sentence structures gently. Great for beginners.\", \"level2Desc\": \"Points out important grammar for exams and explains logical sentence structures.\", \"level3Desc\": \"Explores literary metaphors, nuances, and cultural backgrounds for advanced learners.\", \"level4Desc\": \"Focuses on formality and how to use expressions in practical professional situations.\", \"confirmExplanationTitle\": \"Confirm\", \"confirmExplanationMsg\": \"Use 1 ticket to generate an AI explanation?\", \"generateButton\": \"Generate\", \"onboardingTitle\": \"Welcome to Fragments\", \"onboardingDesc\": \"Discover approx. 43 million fragments extracted from 60,000 books, displayed at random. Save your favorites and use AI explanations to deepen your understanding.\", \"nextButton\": \"Next\", \"startButton\": \"Start\", \"tutorialFeaturesTitle\": \"How to Use\", \"feature1Title\": \"Translate Words\", \"feature1Desc\": \"Tap any word to use the built-in translation.\", \"feature2Title\": \"Search Web\", \"feature2Desc\": \"Tap the author or title to search the book on the web.\", \"feature3Title\": \"Draw a Quote\", \"feature3Desc\": \"Swipe horizontally to draw a new quote.\", \"databaseSearch\": \"Database Search\", \"searchPlaceholder\": \"Search by keyword...\", \"searchEmpty\": \"No results found.\", \"historyTitle\": \"Display History\", \"emptyHistory\": \"No history yet.\", \"quoteLengthTitle\": \"Quote Length\", \"lengthShort\": \"Short\", \"lengthLong\": \"Long\", \"ticketDesc\": \"A ticket to unlock AI explanations.\" }"
+        prompt += "{ \"settingsTitle\": \"Settings\", \"nativeLanguageTitle\": \"Language\", \"aiLevelTitle\": \"AI Explanation Level\", \"done\": \"Done\", \"ticketStore\": \"Ticket Store\", \"selectLanguage\": \"Select your language\", \"stockTitle\": \"Stocked Quotes\", \"emptyStock\": \"No quotes stocked yet.\", \"viewExplanation\": \"View Explanation\", \"close\": \"Close\", \"aiExplanationTitle\": \"AI Explanation\", \"generatingText\": \"Generating...\\nPlease wait⏳\", \"outOfTicketsTitle\": \"Out of Tickets\", \"outOfTicketsMsg\": \"You need tickets for AI Explanation.\", \"buyButton\": \"Go to Store\", \"cancel\": \"Cancel\", \"status\": \"Status\", \"remainingTickets\": \"Tickets\", \"level1\": \"Middle School\", \"level2\": \"High School\", \"level3\": \"College\", \"level4\": \"Business\", \"level1Desc\": \"Avoids difficult grammar terms and explains basic sentence structures gently. Great for beginners.\", \"level2Desc\": \"Points out important grammar for exams and explains logical sentence structures.\", \"level3Desc\": \"Explores literary metaphors, nuances, and cultural backgrounds for advanced learners.\", \"level4Desc\": \"Focuses on formality and how to use expressions in practical professional situations.\", \"confirmExplanationTitle\": \"Confirm\", \"confirmExplanationMsg\": \"Use 1 ticket to generate an AI explanation?\", \"generateButton\": \"Generate\", \"onboardingTitle\": \"Welcome to Fragments\", \"onboardingDesc\": \"Discover approx. 43 million fragments extracted from 60,000 books, displayed at random. Save your favorites and use AI explanations to deepen your understanding.\", \"nextButton\": \"Next\", \"startButton\": \"Start\", \"tutorialFeaturesTitle\": \"How to Use\", \"feature1Title\": \"Translate Words\", \"feature1Desc\": \"Tap any word to use the built-in translation.\", \"feature2Title\": \"Search Web\", \"feature2Desc\": \"Tap the author or title to search the book on the web.\", \"feature3Title\": \"Draw a Quote\", \"feature3Desc\": \"Swipe horizontally to draw a new quote.\", \"databaseSearch\": \"Database Search\", \"searchPlaceholder\": \"Search by keyword...\", \"searchEmpty\": \"No results found.\", \"historyTitle\": \"Display History\", \"emptyHistory\": \"No history yet.\", \"quoteLengthTitle\": \"Quote Length\", \"lengthShort\": \"Short\", \"lengthLong\": \"Long\", \"ticketDesc\": \"A ticket to unlock AI explanations.\" }"
 
         guard let url = URL(string: "https://lagado.jp/fragments/gemini.php") else { return }
         let requestBody: [String: Any] = ["contents": [["parts": [["text": prompt]]]]]
@@ -1104,9 +1128,10 @@ class LanguageManager: ObservableObject {
                 let marker = String(repeating: "`", count: 3)
                 let cleanText = text.replacingOccurrences(of: "\(marker)json", with: "").replacingOccurrences(of: marker, with: "").trimmingCharacters(in: .whitespacesAndNewlines)
 
-                if let textData = cleanText.data(using: .utf8), let translatedUI = try? JSONDecoder().decode(UIStrings.self, from: textData) {
+                if let textData = cleanText.data(using: .utf8), var translatedUI = try? JSONDecoder().decode(UIStrings.self, from: textData) {
+                    translatedUI.ensuringLanguageLabel(for: targetLanguage)
                     self.ui = translatedUI
-                    if let encoded = try? JSONEncoder().encode(translatedUI) { UserDefaults.standard.set(encoded, forKey: "ui_strings_v5_\(targetLanguage)") }
+                    if let encoded = try? JSONEncoder().encode(translatedUI) { UserDefaults.standard.set(encoded, forKey: "ui_strings_v6_\(targetLanguage)") }
                 }
             }
         }.resume()
@@ -1242,9 +1267,14 @@ struct OnboardingView: View {
             }
         }
         .onAppear {
-            // スクショ用: 翻訳完了の副作用で step が進まないよう固定
+            // スクショ用: 翻訳完了の副作用で step が進まないよう固定（遅延再アサート）
             if let step = UIScreenshotMode.active?.onboardingStep {
                 currentStep = step
+                for delay in [0.2, 0.6, 1.2] as [Double] {
+                    DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                        currentStep = step
+                    }
+                }
             }
         }
         .onChange(of: langManager.isTranslating) { oldValue, newValue in
@@ -1479,11 +1509,28 @@ struct SettingsView: View {
                         }
                     }
                     
-                    // 6. 母国語
-                    Section(header: Text(ui.nativeLanguageTitle)) {
-                        Picker(ui.nativeLanguageTitle, selection: Binding(get: { langManager.nativeLanguage }, set: { langManager.setLanguage($0) })) {
+                    // 6. Language — どの言語UIでも英語 "Language" を残し、地球儀で見つけやすくする
+                    Section {
+                        Picker(selection: Binding(get: { langManager.nativeLanguage }, set: { langManager.setLanguage($0) })) {
                             ForEach(langManager.allLanguages, id: \.self) { lang in Text(lang).tag(lang) }
+                        } label: {
+                            Label {
+                                VStack(alignment: .leading, spacing: 2) {
+                                    Text("Language / 言語")
+                                    Text("中文 · Español · English")
+                                        .font(.caption2)
+                                        .foregroundColor(.secondary)
+                                }
+                            } icon: {
+                                Image(systemName: "globe")
+                                    .foregroundColor(.orange)
+                            }
                         }
+                    } header: {
+                        Text("Language / 言語")
+                    } footer: {
+                        Text("If the UI is in the wrong language, tap here and choose yours.")
+                            .font(.caption)
                     }
                     
                     // 7. チケットストア
@@ -1701,14 +1748,15 @@ struct TicketStoreView: View {
                     // 常に 100 / 500 / 1000 の3段を表示（StoreKit 未取得でもラベルは出す）
                     ForEach(IAPProduct.allCases, id: \.rawValue) { pack in
                         let product = storeManager.products.first { $0.id == pack.rawValue }
+                        let screenshot = UIScreenshotMode.active != nil
                         CatalogTicketPackRow(
                             amount: pack.ticketAmount,
                             priceLabel: product?.displayPrice ?? pack.fallbackPriceLabel,
                             badge: pack.storeBadge(isJapanese: isJapanese),
                             descriptionText: langManager.ui.ticketDesc,
                             unitLabel: isJapanese ? "枚" : "Tickets",
-                            isPurchasing: storeManager.isPurchasing,
-                            isAvailable: product != nil
+                            isPurchasing: screenshot ? false : storeManager.isPurchasing,
+                            isAvailable: screenshot ? true : (product != nil)
                         ) {
                             if let product {
                                 Task { try? await storeManager.purchase(product) }
@@ -1729,6 +1777,9 @@ struct TicketStoreView: View {
         .navigationBarTitle(langManager.ui.ticketStore, displayMode: .inline)
         .onAppear {
             ticketManager.checkDailyReset()
+            if UIScreenshotMode.active != nil {
+                storeManager.isLoadingProducts = false
+            }
         }
     }
 }
@@ -1954,13 +2005,36 @@ struct ContentView: View {
                 ui: langManager.ui
             )
             .edgesIgnoringSafeArea(.all)
+
+            // iPad スクショ: sheet が欠ける／WebViewが透けるのを防ぐ全面オーバーレイ
+            if UIScreenshotMode.active == .settings {
+                Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+                NavigationView {
+                    SettingsView(langManager: langManager, englishLevelIndex: $englishLevelIndex)
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if UIScreenshotMode.active == .tickets {
+                Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+                NavigationView {
+                    TicketStoreView(langManager: langManager)
+                }
+                .navigationViewStyle(StackNavigationViewStyle())
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            } else if UIScreenshotMode.active?.onboardingStep != nil {
+                Color(UIColor.systemGroupedBackground).edgesIgnoringSafeArea(.all)
+                OnboardingView(langManager: langManager, englishLevelIndex: $englishLevelIndex)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+            }
         }
         .onAppear {
-            ticketManager.checkDailyReset()
-            _ = QuoteDatabase.shared
-
+            // スクショ: 重い初期化より先にシート／引用を仕込む（iPad で onAppear 遅延すると白紙になる）
             if let mode = UIScreenshotMode.active {
-                // 言語画面では setLanguage しない（翻訳完了 onChange で step が進むのを防ぐ）
+                // スクショはオーバーレイで各画面を出す。fullScreenCover と二重にしない
+                hasCompletedOnboarding = true
+                if mode == .language || mode == .welcome || mode == .howto {
+                    // overlay 側の OnboardingView が step を UIScreenshotMode から読む
+                }
                 if mode != .language {
                     langManager.setLanguage("日本語")
                 }
@@ -1980,16 +2054,26 @@ struct ContentView: View {
                         "skipRoulette": true
                     ]
                 case .settings:
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        showingSettings = true
+                    // iPad は sheet アニメが遅れやすいので複数回アサート
+                    for delay in [0.15, 0.8, 1.6, 3.0] as [Double] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                            showingSettings = true
+                        }
                     }
                 case .tickets:
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                        showingTicketStore = true
+                    for delay in [0.15, 0.8, 1.6, 3.0] as [Double] {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
+                            showingTicketStore = true
+                        }
                     }
                 default:
                     break
                 }
+            }
+
+            ticketManager.checkDailyReset()
+            if UIScreenshotMode.active == nil {
+                _ = QuoteDatabase.shared
             }
             
             UIApplication.shared.connectedScenes
@@ -2007,7 +2091,7 @@ struct ContentView: View {
             }
         }
         .onReceive(NotificationCenter.default.publisher(for: .closeSettings)) { _ in showingSettings = false }
-        .fullScreenCover(isPresented: Binding(get: { !hasCompletedOnboarding }, set: { _ in })) { OnboardingView(langManager: langManager, englishLevelIndex: $englishLevelIndex) }
+        .fullScreenCover(isPresented: Binding(get: { UIScreenshotMode.active == nil && !hasCompletedOnboarding }, set: { _ in })) { OnboardingView(langManager: langManager, englishLevelIndex: $englishLevelIndex) }
         .sheet(isPresented: $showingSettings) { SettingsView(langManager: langManager, englishLevelIndex: $englishLevelIndex) }
         .sheet(isPresented: $showingTicketStore) {
             NavigationView {
@@ -2443,9 +2527,9 @@ struct WebView: UIViewRepresentable {
         let script = WKUserScript(source: hideUIJS, injectionTime: .atDocumentEnd, forMainFrameOnly: true)
         contentController.addUserScript(script)
         
-        if let url = Bundle.main.url(forResource: "index", withExtension: "html"),
-           let htmlString = try? String(contentsOf: url, encoding: .utf8) {
-            webView.loadHTMLString(htmlString, baseURL: Bundle.main.bundleURL)
+        if let url = Bundle.main.url(forResource: "index", withExtension: "html") {
+            // loadHTMLString だと相対 main.js が読めない端末がある → ファイルURLで確実に読む
+            webView.loadFileURL(url, allowingReadAccessTo: url.deletingLastPathComponent())
         } else {
             print("🚨 エラー: index.html がアプリ内に見つかりません！Target Membershipなどを確認してください。")
         }
@@ -2554,8 +2638,19 @@ struct WebView: UIViewRepresentable {
                 webView.evaluateJavaScript(preWarmJS, completionHandler: nil)
             }
             
-            // App Store スクショ: HTML 準備後に決め打ち引用を載せる（複数回リトライ）
+            // App Store スクショ: HTML/JS 準備後に決め打ち引用を載せる（iPad は遅延が大きいので長めにリトライ）
             if let mode = UIScreenshotMode.active {
+                // Google Fonts FOIT で文字が透明のまま残るのを防ぐ
+                let fontFix = """
+                (function(){
+                  var s=document.getElementById('screenshot-font-fix');
+                  if(!s){ s=document.createElement('style'); s.id='screenshot-font-fix';
+                    s.textContent='#quote-text,.extracted-quote,.word,#source-title,#source-author{font-family:-apple-system,"Hiragino Mincho ProN","Hiragino Sans",serif!important;} #quote-text,.extracted-quote{max-width:min(720px,86vw)!important;opacity:1!important;} .source-area{opacity:1!important;}';
+                    document.head.appendChild(s); }
+                })();
+                """
+                webView.evaluateJavaScript(fontFix, completionHandler: nil)
+
                 let dict: [String: Any]?
                 switch mode {
                 case .home:
@@ -2576,9 +2671,10 @@ struct WebView: UIViewRepresentable {
                     dict = nil
                 }
                 if let dict {
-                    for delay in [0.3, 0.8, 1.5, 2.5] as [Double] {
+                    for delay in [0.3, 0.8, 1.5, 2.5, 4.0, 7.0, 12.0, 18.0] as [Double] {
                         DispatchQueue.main.asyncAfter(deadline: .now() + delay) {
                             self.sendQuoteToJS(dict: dict)
+                            self.forceScreenshotQuoteVisible(dict: dict, target: webView)
                         }
                     }
                 }
@@ -2591,9 +2687,14 @@ struct WebView: UIViewRepresentable {
                 }
                 var revealJS = "var hideStyle = document.getElementById('startup-hide-style'); "
                 revealJS += "if (hideStyle) { hideStyle.remove(); } "
-                revealJS += "document.querySelectorAll('.ripple-circle, #swipe-guide').forEach(el => { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; });"
-                revealJS += "var qt = document.getElementById('quote-text'); if (qt) { qt.style.opacity = '1'; } "
-                revealJS += "var sa = document.getElementById('source-area'); if (sa) { sa.style.opacity = '1'; } "
+                if UIScreenshotMode.active == nil {
+                    revealJS += "document.querySelectorAll('.ripple-circle, #swipe-guide').forEach(el => { el.style.opacity = '1'; el.style.pointerEvents = 'auto'; });"
+                } else {
+                    // スクショではガイドを出さず引用を優先表示
+                    revealJS += "document.querySelectorAll('.ripple-circle, #swipe-guide').forEach(el => { el.style.opacity = '0'; el.style.display = 'none'; });"
+                }
+                revealJS += "var qt = document.getElementById('quote-text'); if (qt) { qt.style.opacity = '1'; qt.classList.add('fade-in'); } "
+                revealJS += "var sa = document.getElementById('source-area'); if (sa) { sa.style.opacity = '1'; sa.classList.add('fade-in'); } "
                 
                 webView.evaluateJavaScript(revealJS, completionHandler: nil)
             }
@@ -2826,6 +2927,56 @@ struct WebView: UIViewRepresentable {
             toggleAudioIcon(isPlaying: false)
         }
 
+        func forceScreenshotQuoteVisible(dict: [String: Any], target: WKWebView? = nil) {
+            guard UIScreenshotMode.active != nil else { return }
+            let text = (dict["quote"] as? String) ?? (dict["text"] as? String) ?? ""
+            let title = (dict["title"] as? String) ?? ""
+            let author = (dict["author"] as? String) ?? ""
+            let q64 = Data(text.utf8).base64EncodedString()
+            let t64 = Data(title.utf8).base64EncodedString()
+            let a64 = Data(author.utf8).base64EncodedString()
+            let js = """
+            (function(){
+              function b64(s){
+                try {
+                  var bin = atob(s);
+                  var bytes = new Uint8Array(bin.length);
+                  for (var i=0;i<bin.length;i++) bytes[i]=bin.charCodeAt(i);
+                  return new TextDecoder('utf-8').decode(bytes);
+                } catch(e) { return ''; }
+              }
+              var quote = b64('\(q64)');
+              var title = b64('\(t64)');
+              var author = b64('\(a64)');
+              var qt=document.getElementById('quote-text');
+              var sa=document.getElementById('source-area');
+              var st=document.getElementById('source-title');
+              var au=document.getElementById('source-author');
+              if(qt){
+                qt.innerHTML = '';
+                var span=document.createElement('span');
+                span.className='word';
+                span.textContent=quote;
+                qt.appendChild(span);
+                qt.style.setProperty('opacity','1','important');
+                qt.style.setProperty('color','#111','important');
+                qt.classList.add('fade-in');
+              }
+              if(sa){ sa.style.setProperty('opacity','1','important'); sa.classList.add('fade-in'); }
+              if(st){ st.textContent = title ? ('- ' + title + ' -') : ''; st.style.setProperty('opacity','1','important'); }
+              if(au){ au.textContent = author || ''; au.style.setProperty('opacity','1','important'); }
+              var guide=document.getElementById('swipe-guide');
+              if(guide){ guide.style.opacity='0'; guide.style.display='none'; }
+            })();
+            """
+            let wv = target ?? self.webView
+            DispatchQueue.main.async {
+                wv?.evaluateJavaScript(js, completionHandler: { _, err in
+                    if let err { print("screenshot quote JS error: \(err)") }
+                })
+            }
+        }
+
         func sendQuoteToJS(dict: [String: Any]) {
             let text = (dict["quote"] as? String) ?? (dict["text"] as? String) ?? (dict["content"] as? String) ?? ""
             let title = (dict["title"] as? String) ?? (dict["book"] as? String) ?? ""
@@ -2852,10 +3003,16 @@ struct WebView: UIViewRepresentable {
                 var jsEnd = "try { "
                 jsEnd += "var display = document.getElementById('quote-text'); "
                 jsEnd += "var sourceArea = document.getElementById('source-area'); "
-                jsEnd += "if (display) { display.style.transition = ''; display.style.opacity = ''; } "
-                jsEnd += "if (sourceArea) { sourceArea.style.transition = ''; sourceArea.style.opacity = ''; } "
+                if UIScreenshotMode.active == nil {
+                    jsEnd += "if (display) { display.style.transition = ''; display.style.opacity = ''; } "
+                    jsEnd += "if (sourceArea) { sourceArea.style.transition = ''; sourceArea.style.opacity = ''; } "
+                }
                 jsEnd += "if(window.setSearchKeyword) { window.setSearchKeyword('" + escapedKeyword + "'); } "
                 jsEnd += "if(window.displayQuoteWithFade) { window.displayQuoteWithFade('" + escapedText + "', '" + escapedTitle + "', '" + escapedAuthor + "'); } "
+                if UIScreenshotMode.active != nil {
+                    jsEnd += "if (display) { display.style.opacity = '1'; display.classList.add('fade-in'); } "
+                    jsEnd += "if (sourceArea) { sourceArea.style.opacity = '1'; sourceArea.classList.add('fade-in'); } "
+                }
                 jsEnd += "setTimeout(() => { var icon = document.querySelector('#btn-star svg'); if(icon) { "
                 jsEnd += "if (" + favString + ") { icon.classList.add('stocked'); icon.style.fill = '#ff9500'; icon.style.color = '#ff9500'; } "
                 jsEnd += "else { icon.classList.remove('stocked'); icon.style.fill = 'none'; icon.style.color = ''; } "

@@ -1,8 +1,9 @@
 # App Store 提出チェックリスト — Fragments iOS
 
-> 版: **1.0.8** / Build **9**  
-> 更新: 2026-08-06  
-> 注: **1.0.7 は承認済み／train 閉鎖**。新規は 1.0.8 必須。
+> 版: **1.1.4** / Build **12**  
+> 更新: 2026-08-30  
+> 目的: 日本語名 `Fragments（文学の断片）` · 言語設定の見つけやすさ（Language / 言語）· 審査提出  
+> 注: ASC で **1.1.4** を作成 → ビルド紐づけ → 審査。プライマリ日本語は可能なときアプリ情報で変更。
 
 ## A. Xcode（淡島様）
 
@@ -16,18 +17,20 @@
 ### 日本語ローカライズ
 
 - [ ] 言語 **日本語** を追加
-- [ ] 名前 / サブタイトル / キーワード / 概要（下の正本を貼る）
-- [ ] スクショ 6.7インチ: `docs/ios/store-screenshots-ja-sim/`（01→07 · **1290×2796**）
-- [ ] 「英語を使用」ではなく日本語用メディアにする
-
-### 英語（既存）も概要が古ければ更新
+- [ ] 名前: `Fragments（文学の断片）`
+- [ ] サブタイトル: `文学の断片を、いまの気配で`
+- [ ] キーワード / 概要（下の正本を貼る）
+- [ ] スクショ: 「英語を使用」ではなく日本語用に独自アップロード
+  - iPhone: `docs/ios/store-screenshots-ja-sim/`
+  - iPad 13インチ: `docs/ios/store-screenshots-ja-ipad13/提出用-iPad13-2026-08-15/`
 
 ### 共通
 
-- [ ] ASC で **新しいバージョン 1.0.8** を作成してからビルドを紐づけ
+- [ ] ASC で **バージョン 1.1.4** にビルドを紐づけ
+- [ ] **アプリ情報 → プライマリ言語 → 日本語 → 保存**（可能なとき）
 - [ ] プライバシー URL: `https://lagado.jp/fragments/privacy.php`
 - [ ] EULA: Apple Standard で可
-- [ ] IAP: `ticket100` / `ticket500` / `ticket1000` を **審査用に追加**（価格・スクショ済）
+- [ ] IAP: `ticket100` / `ticket500` / `ticket1000` を **審査用に追加**
 - [ ] 旧 `ticket10000` は販売停止
 - [ ] 年齢・コンテンツ権利・輸出コンプライアンス
 
@@ -77,6 +80,9 @@ https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 ### サブタイトル
 `文学の断片を、いまの気配で`
 
+### 日本語・名前（ASC）
+`Fragments（文学の断片）`
+
 ### キーワード
 `文学,名言,読書,英語学習,AI,断片,古典,翻訳,教養,言葉`
 
@@ -114,12 +120,12 @@ https://www.apple.com/legal/internet-services/itunes/dev/stdeula/
 
 ### What’s New（日本語）
 ```
-日本語表示を強化しました。チケットは100 / 500 / 1000枚に整理し、価格を見直しています。左右スワイプはどちらも新しい言葉を引きます。プライバシーとサポート連絡先も更新しました。
+設定の言語項目を「Language / 言語」に揃え、どの言語でも見つけやすくしました。
 ```
 
 ### What’s New（English）
 ```
-Improved Japanese UI. Ticket packs are now 100 / 500 / 1000 with updated pricing. Swiping either direction draws a new quote. Privacy policy and support contact details were updated.
+Settings language row now always shows “Language / 言語” so it is easy to find in any UI language.
 ```
 
 ---
@@ -128,18 +134,19 @@ Improved Japanese UI. Ticket packs are now 100 / 500 / 1000 with updated pricing
 
 ```
 App: Fragments (jp.lagado.pocketfortune)
-Version: 1.0.8 (Build 9)
+Version: 1.1.4 (Build 12)
 
 No login required. Sandbox IAP is available.
 
 Consumable ticket IAPs (AI explanations):
 - jp.lagado.literaryfragments.ticket100 (100 tickets)
-- jp.lagado.literaryfragments.ticket500 (500 tickets) — new
+- jp.lagado.literaryfragments.ticket500 (500 tickets)
 - jp.lagado.literaryfragments.ticket1000 (1000 tickets)
 
 How to test: Open Settings → Ticket Store → purchase a pack → return and open AI Explanation on a quote (uses 1 ticket). Daily free tickets may apply.
 
-Japanese App Store localization and screenshots included. In-app UI defaults to Japanese on ja devices.
+Japanese App Store localization with dedicated screenshots (not shared from English). In-app UI defaults to Japanese on ja devices.
+This build improves the Settings language label (always “Language / 言語” with globe icon).
 
 Privacy / Support: https://lagado.jp/fragments/privacy.php
 Contact: info@lagado.jp

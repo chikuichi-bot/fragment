@@ -3,7 +3,7 @@
 > **完了 80% · 残り 20%**  
 > 次: **F** QA・ストア提出（F1 もう1台 · F2 残り · F3 本番）  
 > 更新: 2026-08-05  
-> 前提: iOS は Xcode **1.0.7 / Build 8**（日本語初回UI）· Android は Kotlin **1.0.5 / code 6** · API は `lagado.jp/fragments/` 共通 · 課金は StoreKit / Play Billing 8.3.0（Debug は開発付与）
+> 前提: iOS は Xcode **1.1.4 / Build 12**（Language / 言語）· Android は Kotlin **1.0.7 / code 8** · API は `lagado.jp/fragments/` 共通 · 課金は StoreKit / Play Billing 8.3.0（Debug は開発付与）
 
 ```
 Fragments Android · 完了 80% · 残り 20%
@@ -13,7 +13,7 @@ Fragments Android · 完了 80% · 残り 20%
 ### Play Console（枠）
 
 - [x] アプリ作成 **Literary Fragments** · `jp.lagado.literaryfragments`
-- [x] 課金商品 D1（ticket100 / 500 / 1000 · 余裕多め ¥300 / ¥900 / ¥1,500）· Alpha **2 (1.0.1)** クローズド公開済 · **1.0.5 AAB** 準備済（2026-08-05 · `store-assets/LiteraryFragments-1.0.5-release.aab` · 日本語初回既定）· 本番公開は **F** · Play `ticket500` 購入確認済
+- [x] 課金商品 D1（ticket100 / 500 / 1000 · 余裕多め ¥300 / ¥900 / ¥1,500）· Alpha **2 (1.0.1)** クローズド公開済 · **1.0.6 AAB** 準備済（2026-08-14 · `store-assets/LiteraryFragments-1.0.6-release.aab` · versionCode 7 · 製品版提出用）· 本番公開は **F** · Play `ticket500` 購入確認済 · 製品版アクセス承認済
 
 ### ビルドメモ
 
@@ -30,7 +30,7 @@ cd FragmentsApp/android
 | | iOS | Android |
 |--|-----|---------|
 | Bundle / ID | `jp.lagado.pocketfortune`（表示 Fragments） | `jp.lagado.literaryfragments` |
-| 版 | **1.0.7** / Build **8**（Xcode · 2026-08-05） | **1.0.5** / versionCode **6** |
+| 版 | **1.0.7** / Build **8**（Xcode · 2026-08-05） | **1.0.6** / versionCode **7** |
 | チケット IAP | StoreKit · `jp.lagado.literaryfragments.ticket*` | Billing 8.3.0 · 同 ID（D1–D4 済） |
 | 気配・場所 | `PlaceLiteraryLexicon` + GPS | 同型（コード済） |
 | 左右スワイプ | どちらも新規ランダム（履歴めくりなし） | 同型 |
